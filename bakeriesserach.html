@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KwetoBread - Pesquisa de Padarias</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --bg:           #ffffff;
+    --fg:           #000000;
+    --card:         #ffffff;
+    --muted:        #F2F2F7;
+    --muted-fg:     #8E8E93;
+    --border:       rgba(0,0,0,.10);
+    --amber:        #92400e;
+    --amber-light:  #b45309;
+    --amber-badge:  #d97706;
+    --amber-bg:     rgba(146,64,14,.08);
+    --green:        #16a34a;
+    --red:          #dc2626;
+    --radius:       0.75rem;
+    --shadow-sm:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md:    0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);
+    --shadow-lg:    0 10px 24px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+    --transition:   200ms ease;
+  }
+
+  html { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; font-size: 16px; }
+  body { background: #ffffff; color: var(--fg); min-height: 100vh; }
+
+  /* ── Sticky search bar ── */
+  .search-bar {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  .search-bar-inner {
+    max-width: 640px; margin: 0 auto;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .btn-back {
+    flex-shrink: 0; width: 36px; height: 36px;
+    border: none; background: transparent; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--fg); transition: background var(--transition);
+  }
+  .btn-back:hover { background: var(--muted); }
+  .btn-back svg { width: 20px; height: 20px; }
+
+  .search-wrap {
+    position: relative; flex: 1;
+  }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--muted-fg); width: 16px; height: 16px;
+  }
+  .search-input {
+    width: 100%; height: 40px;
+    padding: 0 36px 0 36px;
+    background: var(--muted); border: 1.5px solid #d4a017; outline: none;
+    border-radius: 12px; font-size: 15px; color: var(--fg);
+    transition: box-shadow var(--transition);
+  }
+  .search-input::placeholder { color: var(--muted-fg); }
+  .search-input:focus { box-shadow: none; outline: none; }
+  .search-clear {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--muted-fg); display: none; align-items: center;
+    padding: 2px; transition: color var(--transition);
+  }
+  .search-clear:hover { color: var(--fg); }
+  .search-clear.visible { display: flex; }
+  .search-clear svg { width: 16px; height: 16px; }
+
+  /* ── Main content ── */
+  .main {
+    max-width: 640px; margin: 0 auto;
+    padding: 16px 16px 48px;
+  }
+
+  .btn-map {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    padding: 0 14px; height: 32px;
+    background: #ffffff; border: 1.5px solid #c8860a;
+    border-radius: 8px; cursor: pointer; color: #92400e;
+    transition: background var(--transition);
+  }
+  .btn-map:hover { background: #fdf8f0; }
+  .btn-map i { font-size: 13px; }
+
+  /* ── Toolbar (count + filter button) ── */
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .result-count { font-size: 13px; color: var(--muted-fg); }
+  .result-count strong { color: var(--amber); font-weight: 600; }
+
+  .btn-filter {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    padding: 0 14px; height: 32px;
+    background: #ffffff; border: 1.5px solid #d4a017;
+    border-radius: 8px; cursor: pointer; color: #92400e;
+    transition: background var(--transition);
+  }
+  .btn-filter:hover { background: #fdf8f0; }
+  .btn-filter.active { background: #fdf8f0; }
+  .btn-filter svg { width: 14px; height: 14px; }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .tab-btn {
+    flex: 1; padding-bottom: 10px;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 500;
+    color: var(--muted-fg);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    position: relative; transition: color var(--transition);
+  }
+  .tab-btn.active { color: var(--amber); }
+  .tab-btn::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px; background: var(--amber);
+    border-radius: 2px 2px 0 0;
+    transform: scaleX(0); transition: transform 220ms ease;
+  }
+  .tab-btn.active::after { transform: scaleX(1); }
+  .tab-count {
+    font-size: 11px; padding: 2px 6px;
+    border-radius: 100px; font-weight: 500;
+  }
+  .tab-btn.active .tab-count { background: var(--amber-bg); color: var(--amber); }
+  .tab-btn:not(.active) .tab-count { background: var(--muted); color: var(--muted-fg); }
+
+  /* ── Filter chips ── */
+  .filter-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .chip {
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border);
+    background: #ffffff; color: var(--muted-fg);
+    cursor: pointer; transition: all var(--transition);
+  }
+  .chip:hover { border-color: #92400e; }
+  .chip.active { background: #ffffff; color: #92400e; border-color: #d4a017; font-weight: 700; }
+
+  .range-input { width: 100%; accent-color: #92400e; cursor: pointer; }
+  .range-ticks {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--muted-fg); margin-top: 4px;
+  }
+
+  /* ── Filter Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.45);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal-sheet {
+    background: #ffffff; width: 100%; max-width: 480px;
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh; overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 250ms ease;
+    box-shadow: 0 -8px 30px rgba(0,0,0,.2);
+  }
+  .modal-overlay.open .modal-sheet { transform: translateY(0); }
+  @media (min-width: 640px) {
+    .modal-overlay { align-items: center; }
+    .modal-sheet { border-radius: 20px; transform: translateY(20px) scale(.97); }
+    .modal-overlay.open .modal-sheet { transform: translateY(0) scale(1); }
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: #ffffff; z-index: 1;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--fg); }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; background: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--fg); font-size: 14px;
+    transition: background var(--transition);
+  }
+  .modal-close:hover { background: #e5e5ea; }
+  .modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 24px; }
+  .modal-section { display: flex; flex-direction: column; gap: 10px; }
+  .modal-label {
+    font-size: 13px; font-weight: 600; color: var(--fg);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-label-value { font-size: 13px; font-weight: 700; color: #92400e; }
+  .modal-footer {
+    display: flex; gap: 10px; padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    position: sticky; bottom: 0; background: #ffffff;
+  }
+  .btn-clear-modal {
+    flex: 1; height: 44px; border-radius: 12px;
+    border: 1px solid var(--border); background: #ffffff;
+    font-size: 14px; font-weight: 600; color: var(--fg);
+    cursor: pointer; transition: background var(--transition);
+  }
+  .btn-clear-modal:hover { background: var(--muted); }
+  .btn-apply-modal {
+    flex: 2; height: 44px; border-radius: 12px;
+    background: #ffffff; border: 1.5px solid #d4a017;
+    font-size: 14px; font-weight: 700; color: #92400e;
+    cursor: pointer; transition: opacity var(--transition);
+  }
+  .btn-apply-modal:hover { opacity: .8; }
+
+
+  /* ── Tab content panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center; padding: 64px 0;
+    color: var(--muted-fg); font-size: 14px;
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* ── Product grid (2 cols) ── */
+  /* ── Product grid (2 cols) ── */
+  .product-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .product-card {
+    background: #ffffff;
+    border: 1.5px solid #c8860a;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow var(--transition), transform var(--transition);
+    animation: fadeUp .25s ease both;
+  }
+  .product-card:hover {
+    box-shadow: 0 8px 24px rgba(146,64,14,.18);
+    transform: translateY(-2px);
+  }
+  .product-card:hover .product-img { transform: scale(1.05); }
+  .product-img-wrap { position: relative; overflow: hidden; border-radius: 18px 18px 0 0; }
+  .product-img {
+    width: 100%; height: 148px; object-fit: cover;
+    display: block; transition: transform 350ms ease;
+  }
+  .product-tag {
+    position: absolute; top: 10px; left: 10px;
+    background: #d4a017; color: #1a1a1a;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .04em;
+    padding: 4px 10px; border-radius: 100px;
+    text-transform: uppercase;
+  }
+  .btn-add {
+    position: absolute; bottom: 10px; right: 10px;
+    width: 34px; height: 34px;
+    background: #92400e; color: #fff;
+    border: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    transition: background var(--transition), transform var(--transition);
+  }
+  .btn-add:hover { background: #78350f; transform: scale(1.1); }
+  .btn-add svg { width: 18px; height: 18px; }
+  .product-info { padding: 12px 12px 14px; }
+  .product-category {
+    font-size: 10px; font-weight: 700;
+    color: #92400e; text-transform: uppercase;
+    letter-spacing: .06em; margin-bottom: 4px;
+  }
+  .product-name {
+    font-size: 15px; font-weight: 700;
+    color: var(--fg); line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .product-bakery-name {
+    font-size: 11px; color: #92400e; font-weight: 500;
+    margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .product-bakery-name i { margin-right: 3px; }
+  .product-sold {
+    font-size: 11px; color: var(--muted-fg);
+    margin-bottom: 8px;
+  }
+  .product-stats {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 10px;
+  }
+  .pstat {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--fg); font-weight: 500;
+  }
+  .pstat svg { width: 14px; height: 14px; color: #92400e; flex-shrink: 0; }
+  .price {
+    font-size: 18px; font-weight: 800;
+    color: #92400e;
+  }
+
+  /* ── Bakery list ── */
+  .bakery-list { display: flex; flex-direction: column; gap: 12px; }
+  .bakery-card {
+    background: #ffffff; border: 1.5px solid #c8860a;
+    border-radius: 20px; padding: 16px;
+    display: flex; align-items: center; gap: 16px;
+    cursor: pointer; transition: box-shadow var(--transition), transform var(--transition);
+    animation: fadeUp .25s ease both;
+  }
+  .bakery-card:hover {
+    box-shadow: 0 8px 24px rgba(120,53,15,.18);
+    transform: translateY(-2px);
+  }
+  .bakery-logo {
+    flex-shrink: 0; width: 64px; height: 64px;
+    border-radius: 14px; overflow: hidden;
+    background: linear-gradient(135deg, #92400e, #b45309);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  .bakery-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .bakery-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .bakery-name { font-weight: 700; font-size: 15px; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .bakery-specialty { font-size: 11px; color: #92400e; font-weight: 600; text-transform: uppercase; letter-spacing:.04em; margin-bottom:4px; }
+.bcard-stat-row{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted-fg);margin-bottom:3px;flex-wrap:nowrap;overflow:visible;}
+  .bakery-stats {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted-fg); flex-wrap: nowrap; white-space: nowrap; margin-bottom: 6px;
+  }
+  .bakery-stats svg { width: 12px; height: 12px; }
+  .dot { color: rgba(0,0,0,.2); }
+  .bakery-addr { display: flex; align-items: flex-start; gap: 4px; font-size: 11px; color: var(--muted-fg); }
+  .bakery-addr svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 2px; color: #b45309; }
+  .addr-province { font-size: 10px; opacity: .7; }
+
+  .bakery-right {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: flex-end;
+    justify-content: space-between; align-self: stretch; gap: 8px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 2px;
+    font-size: 11px; font-weight: 600; padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .badge-open  { background: #16a34a; color: #fff; }
+  .badge-closed { background: #ef4444; color: #fff; }
+  .badge svg { width: 10px; height: 10px; }
+  .btn-catalog {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: #92400e;
+    background: none; border: none; cursor: pointer;
+    transition: opacity var(--transition); white-space: nowrap;
+  }
+  .btn-catalog:hover { opacity: .7; }
+  .btn-catalog svg { width: 12px; height: 12px; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Staggered card delay helpers ── */
+  .product-card:nth-child(1), .bakery-card:nth-child(1) { animation-delay: .00s; }
+  .product-card:nth-child(2), .bakery-card:nth-child(2) { animation-delay: .04s; }
+  .product-card:nth-child(3), .bakery-card:nth-child(3) { animation-delay: .08s; }
+  .product-card:nth-child(4), .bakery-card:nth-child(4) { animation-delay: .12s; }
+  .product-card:nth-child(5), .bakery-card:nth-child(5) { animation-delay: .16s; }
+  .product-card:nth-child(6), .bakery-card:nth-child(6) { animation-delay: .20s; }
+  .product-card:nth-child(7), .bakery-card:nth-child(7) { animation-delay: .24s; }
+  .product-card:nth-child(8), .bakery-card:nth-child(8) { animation-delay: .28s; }
+  .product-card:nth-child(9), .bakery-card:nth-child(9) { animation-delay: .32s; }
+  .product-card:nth-child(10),.bakery-card:nth-child(10){ animation-delay: .36s; }
+
+  /* ── Responsive ── */
+  @media (max-width: 400px) {
+    .product-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .product-img { height: 96px; }
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ── Sticky Search Bar ── -->
+<div class="search-bar">
+  <div class="search-bar-inner">
+
+<button class="btn-back" onclick="window.location.href='index.html'" aria-label="Voltar">
+  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  </svg>
+</button>
+
+    <div class="search-wrap">
+      <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="searchInput" class="search-input" type="text"
+        placeholder="Pesquisar padarias..." autocomplete="off" />
+      <button class="search-clear" id="clearBtn" aria-label="Limpar">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn-map" id="mapBtn">
+        <i class="fa-solid fa-map-location-dot"></i>
+        Localizar no Mapa
+      </button>
+      <button class="btn-filter" id="filterBtn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" d="M3 6h18M7 12h10M11 18h2"/>
+        </svg>
+        Filtrar
+      </button>
+    </div>
+  </div>
+  <br>
+  <!-- Bakeries panel -->
+  <div class="panel active" id="panelBakeries">
+    <div class="bakery-list" id="bakeryList"></div>
+    <div class="empty" id="emptyBakeries" style="display:none">
+      <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+      Nenhuma padaria encontrada.
+    </div>
+  </div>
+
+</div>
+
+<!-- Filter Modal -->
+<div class="modal-overlay" id="filterOverlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title">Filtros</span>
+      <button class="modal-close" id="filterClose" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-label">Estado</div>
+        <div class="filter-chips" id="bakeryChips"></div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-label">
+          Avaliação Mínima
+          <span id="ratingVal" class="modal-label-value">Todas</span>
+        </div>
+        <input type="range" id="ratingSlider" class="range-input" min="0" max="5" step="0.5" value="0"/>
+        <div class="range-ticks"><span>0</span><span>2.5</span><span>5.0</span></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-clear-modal" id="clearFilters">Limpar Filtros</button>
+      <button class="btn-apply-modal" id="applyFilters">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── DATA ── */
+const PRODUCTS = [
+  { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop&auto=format", tag:"Destaque" },
+  { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop&auto=format", tag:"Novo" },
+  { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop&auto=format" },
+  { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop&auto=format" },
+  { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop&auto=format", tag:"Popular" },
+  { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop&auto=format" },
+  { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop&auto=format" },
+  { id:8,  name:"Macaron de Baunilha",     bakery:"Confeitaria Paris",       category:"Doces",              price:"125,00", sold:9,  units:35, time:30, image:"https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=400&h=400&fit=crop&auto=format" },
+  { id:9,  name:"Pão de Forma",            bakery:"Padaria Forno Quente",    category:"Pão",                price:"200,00", sold:25, units:100,time:15, image:"https://images.unsplash.com/photo-1565183928294-7063f23ce0f8?w=400&h=400&fit=crop&auto=format" },
+  { id:10, name:"Tarte de Morango",        bakery:"Pastelaria Nautilus",     category:"Bolos",              price:"280,00", sold:6,  units:15, time:40, image:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=400&fit=crop&auto=format" },
+  { id:11, name:"Bolo de Aniversário",     bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"850,00", sold:3,  units:5,  time:60, image:"https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400&h=400&fit=crop&auto=format", tag:"Destaque" },
+  { id:12, name:"Pão de Leite",            bakery:"Padaria Bela Vista",      category:"Pão",                price:"90,00",  sold:18, units:70, time:20, image:"https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=400&h=400&fit=crop&auto=format" },
+  { id:13, name:"Rosca de Coco",           bakery:"Padaria São Paulo",       category:"Bolos",              price:"130,00", sold:11, units:30, time:25, image:"https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400&h=400&fit=crop&auto=format" },
+  { id:14, name:"Pão Integral",            bakery:"Padaria Maputo Bakery",   category:"Pão",                price:"160,00", sold:22, units:50, time:15, image:"https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=400&h=400&fit=crop&auto=format", tag:"Novo" },
+  { id:15, name:"Cupcake de Chocolate",    bakery:"Sweet House Maputo",      category:"Doces",              price:"95,00",  sold:14, units:40, time:20, image:"https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&h=400&fit=crop&auto=format" },
+];
+const BAKERIES = [
+  { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },
+  { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },
+  { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" },
+  { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },
+  { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },
+  { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },
+  { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },
+  { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },
+  { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },
+  { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },
+  { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },
+  { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },
+];
+const BAKERY_STATUS = ["Todas","Abertas","Fechadas"];
+
+let state = {
+  query: "",
+  bakeryFilter: "Todas",
+  minRating: 0,
+};
+
+const searchInput    = document.getElementById("searchInput");
+const clearBtn       = document.getElementById("clearBtn");
+const filterBtn      = document.getElementById("filterBtn");
+const bakeryChips    = document.getElementById("bakeryChips");
+const panelBakeries  = document.getElementById("panelBakeries");
+const bakeryList     = document.getElementById("bakeryList");
+const emptyBakeries  = document.getElementById("emptyBakeries");
+const filterOverlay  = document.getElementById("filterOverlay");
+const filterClose    = document.getElementById("filterClose");
+const clearFiltersBtn = document.getElementById("clearFilters");
+const applyFiltersBtn = document.getElementById("applyFilters");
+const ratingSlider   = document.getElementById("ratingSlider");
+const ratingVal      = document.getElementById("ratingVal");
+
+function normalize(str) {
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+function matchesInitials(name, q) {
+  if (!q) return true;
+  const nameWords = normalize(name).split(/\s+/);
+  const qWords = q.split(/\s+/).filter(Boolean);
+  return qWords.every(qw => nameWords.some(word => word.startsWith(qw)));
+}
+
+function filteredBakeries() {
+  const q = normalize(state.query.trim());
+  return BAKERIES.filter(b => {
+    const matchQ = !q || matchesInitials(b.name, q);
+    const matchF = state.bakeryFilter === "Todas"
+      || (state.bakeryFilter === "Abertas"  &&  b.open)
+      || (state.bakeryFilter === "Fechadas" && !b.open);
+    return matchQ && matchF && b.rating >= state.minRating;
+  });
+}
+
+function renderChips() {
+  bakeryChips.innerHTML = BAKERY_STATUS.map(s =>
+    `<button class="chip ${state.bakeryFilter === s ? 'active' : ''}" onclick="setBakeryFilter('${s}')">${s}</button>`
+  ).join("");
+}
+
+function renderBakeries() {
+  const baks = filteredBakeries();
+  if (!baks.length) { bakeryList.style.display="none"; emptyBakeries.style.display="block"; return; }
+  bakeryList.style.display = "flex";
+  emptyBakeries.style.display = "none";
+  bakeryList.innerHTML = baks.map(b => `
+    <div class="bakery-card">
+      <div class="bakery-logo">
+        ${b.logo ? `<img src="${b.logo}" alt="${b.name}" loading="lazy"/>` : '<i class="fa-solid fa-bread-slice"></i>'}
+      </div>
+      <div class="bakery-body">
+        <div class="bakery-name">${b.name}</div>
+        <div class="bakery-stats" style="margin-bottom:2px">
+          <svg viewBox="0 0 24 24" style="fill:#fbbf24;width:12px;height:12px;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <strong style="color:var(--fg)">${b.rating}</strong><span>(${b.reviews})</span>
+        </div>
+        <div class="bakery-stats">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#b45309;width:12px;height:12px;flex-shrink:0"><path stroke-linecap="round" d="M20 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          <span>${b.products} produtos</span>
+          <span class="dot">·</span>
+          <i class="fa-solid fa-fire" style="color:#ea580c;font-size:12px;flex-shrink:0"></i>
+          <span>${b.orders} encomendas</span>
+        </div>
+        <div class="bakery-addr">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <div><span>${b.address}, ${b.city}</span><br/><span class="addr-province">${b.province}</span></div>
+        </div>
+      </div>
+      <div class="bakery-right">
+        ${b.open
+          ? `<span class="badge badge-open"><span class="live-dot"></span>Aberto</span>`
+          : `<span class="badge badge-closed"><span class="dead-dot"></span>Fechado</span>`}
+        <button class="btn-catalog">Ver Catálogo <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>`
+  ).join("");
+}
+
+function render() {
+  panelBakeries.classList.add("active");
+  const hasActive = state.bakeryFilter !== "Todas" || state.minRating > 0;
+  filterBtn.classList.toggle("active", hasActive);
+  renderChips();
+  renderBakeries();
+}
+
+searchInput.addEventListener("input", e => { state.query = e.target.value; clearBtn.classList.toggle("visible", !!state.query); render(); });
+clearBtn.addEventListener("click", () => { state.query = ""; searchInput.value = ""; clearBtn.classList.remove("visible"); searchInput.focus(); render(); });
+filterBtn.addEventListener("click", () => filterOverlay.classList.add("open"));
+filterClose.addEventListener("click", () => filterOverlay.classList.remove("open"));
+filterOverlay.addEventListener("click", e => { if(e.target===filterOverlay) filterOverlay.classList.remove("open"); });
+
+ratingSlider.addEventListener("input", () => {
+  state.minRating = parseFloat(ratingSlider.value);
+  ratingVal.textContent = state.minRating > 0 ? state.minRating.toFixed(1) + "+" : "Todas";
+  render();
+});
+clearFiltersBtn.addEventListener("click", () => {
+  state.bakeryFilter = "Todas"; state.minRating = 0;
+  ratingSlider.value = 0; ratingVal.textContent = "Todas";
+  render();
+});
+applyFiltersBtn.addEventListener("click", () => filterOverlay.classList.remove("open"));
+
+window.setBakeryFilter = s => { state.bakeryFilter = s; render(); };
+
+render();
+
+</script>
+</body>
+</html>
