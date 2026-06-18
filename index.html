@@ -1,784 +1,689 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KwetoBread — Finalizar Pedido</title>
+  
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KwetoBread - Página Inicial</title>
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  <style>
+    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    a { text-decoration: none; color: inherit; }
 
-:root {
-  --kb-primary:       #D4A017;
-  --kb-primary-dark:  #8B4513;
-  --kb-primary-light: #E8B84B;
-  --kb-bg-primary:    #FAF7F2;
-  --kb-bg-secondary:  #FFFFFF;
-  --kb-bg-tertiary:   #F5EFE6;
-  --kb-border-light:  #E8D9C8;
-  --kb-text-primary:  #1C0F05;
-  --kb-text-secondary:#4A2E18;
-  --kb-text-tertiary: #9A7A5A;
-  --hdr-h: 60px;
-}
+    
+    :root {
+      --bg:       #ffffff;
+      --fg:       #000000;
+      --card:     #ffffff;
+      --muted:    #F2F2F7;
+      --muted-fg: #8E8E93;
+      --border:   rgba(0,0,0,.10);
+      --brown:    #78350f;
+      --brown2:   #92400e;
+      --brown3:   #b45309;
+      --brown-bg: rgba(120,53,15,.08);
+      --green:    #16a34a;
+      --red:      #dc2626;
+      --blue:     #2563eb;
+      --radius:   0.75rem;
+      --sh-sm:    0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --sh-md:    0 4px 12px rgba(0,0,0,.10),0 2px 4px rgba(0,0,0,.06);
+      --sh-lg:    0 10px 28px rgba(0,0,0,.13),0 4px 8px rgba(0,0,0,.07);
+      --t:        200ms ease;
+    }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: var(--kb-bg-primary);
-  color: var(--kb-text-primary);
-  min-height: 100vh;
-}
+    /* Estilos base do body  */
+    html { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; font-size: 16px; }
+    body { background: #ffffff; color: var(--fg); min-height: 100vh; }
 
-.kb-header {
-  height: var(--hdr-h);
-  background: var(--kb-bg-secondary);
-  border-bottom: 1.5px solid var(--kb-border-light);
-  display: flex; align-items: center;
-  padding: 0 32px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 12px rgba(139,69,19,.06);
-}
-.kb-header-spacer { flex: 1; }
+    /* BLOCO: cards de estatísticas  */
+    .stats-strip {
+      background: #ffffff;
+      padding: 0 16px;
+      position: relative; z-index: 10;
+      margin-bottom: 32px;
+      padding-top: 24px;
+    }
+    .stats-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+    }
+    .stat-card {
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px 24px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: var(--sh-md);
+      animation: fadeUp .4s ease both;
+    }
+    .stat-card:nth-child(2) { animation-delay: .1s; }
+    .stat-card:nth-child(3) { animation-delay: .2s; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 24px; height: 24px; }
+    .stat-icon.blue   { background: rgba(37,99,235,.1); color: #2563eb; }
+    .stat-icon.green  { background: rgba(22,163,74,.1); color: #16a34a; }
+    .stat-icon.brown  { background: var(--brown-bg); color: var(--brown); }
+    .stat-val { font-size: 28px; font-weight: 700; color: var(--fg); line-height: 1; }
+    .stat-lbl { font-size: 13px; color: var(--muted-fg); margin-top: 4px; }
 
-.co-page { padding: 36px 0 100px; }
-.co-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+    /* ===== CONTAINER PRINCIPAL ===== */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 
-.co-page-title {
-  font-size: 2rem; font-weight: 900; color: var(--kb-text-primary);
-  display: flex; align-items: center; gap: 14px; margin-bottom: 36px;
-}
-.co-page-title i { color: var(--kb-primary); }
+    /* ===== BLOCO: SEARCH (barra de pesquisa e filtros) ===== */
+    .search-section { margin-bottom: 24px; }
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    .search-icon-left {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted-fg); width: 20px; height: 20px; pointer-events: none;
+    }
+    .search-box {
+      width: 100%; height: 48px; padding: 0 16px 0 44px;
+      background: #ffffff; border: 2px solid #d4a017;
+      border-radius: var(--radius); font-size: 15px; color: var(--fg);
+      outline: none; cursor: pointer;
+    }
+    .search-box:focus { border-color: #d4a017; box-shadow: none; outline: none; }
 
-.co-layout {
-  display: grid; grid-template-columns: 1fr 400px;
-  gap: 36px; align-items: start;
-}
+    /* Linha de filtros (selects e botões) */
+    .filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .filter-left { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .select-wrap { position: relative; }
+    .filter-select {
+      height: 38px; padding: 0 32px 0 12px;
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 13px; color: var(--fg);
+      appearance: none; cursor: pointer; outline: none; transition: border-color var(--t);
+    }
+    .filter-select:focus { border-color: var(--brown); }
+    .select-arrow {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; color: var(--muted-fg); width: 14px; height: 14px;
+    }
+    .btn-advanced {
+      display: flex; align-items: center; gap: 6px;
+      height: 38px; padding: 0 14px;
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 13px; color: var(--fg);
+      cursor: pointer; transition: border-color var(--t); position: relative;
+    }
+    .btn-advanced:hover { border-color: var(--brown); }
+    .btn-advanced svg { width: 15px; height: 15px; }
+    .badge-count {
+      position: absolute; top: -8px; right: -8px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #ef4444; color: #fff; font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .results-count { font-size: 13px; color: var(--muted-fg); }
+    .results-count strong { font-weight: 600; color: var(--fg); }
 
-.co-card {
-  background: var(--kb-bg-secondary);
-  border-radius: 20px; border: 1.5px solid var(--kb-border-light);
-  box-shadow: 0 4px 20px rgba(139,69,19,.05);
-  overflow: hidden; margin-bottom: 20px;
-}
-.co-card-head {
-  padding: 18px 22px; background: var(--kb-bg-tertiary);
-  border-bottom: 1.5px solid var(--kb-border-light);
-  display: flex; align-items: center; gap: 12px;
-}
-.co-card-head-icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  background: var(--kb-primary-dark); color: #fff;
-  display: flex; align-items: center; justify-content: center; font-size: 1rem;
-}
-.co-card-head-title { font-size: 1rem; font-weight: 800; color: var(--kb-text-primary); }
-.co-card-body { padding: 22px; }
+    /* Tags de filtros activos */
+    .active-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; background: var(--muted); border-radius: 100px;
+      font-size: 12px; color: var(--fg);
+    }
+    .badge-tag button {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted-fg); font-size: 14px; line-height: 1; padding: 0;
+    }
+    .badge-tag button:hover { color: var(--fg); }
 
-/* ── DELIVERY TOGGLES ── */
-.co-delivery-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
-.co-delivery-toggle {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  padding: 14px; border: 2px solid var(--kb-border-light); border-radius: 16px;
-  cursor: pointer; transition: all .2s; background: var(--kb-bg-secondary);
-  user-select: none;
-}
-.co-delivery-toggle input { display: none; }
-.co-delivery-toggle i { font-size: 1.1rem; color: var(--kb-text-tertiary); pointer-events: none; }
-.co-delivery-toggle span { font-size: .9rem; font-weight: 700; color: var(--kb-text-secondary); pointer-events: none; }
-.co-delivery-toggle.selected { border-color: var(--kb-primary); background: rgba(212,160,23,.06); }
-.co-delivery-toggle.selected i { color: var(--kb-primary); }
-.co-delivery-toggle.selected span { color: var(--kb-text-primary); }
+    /*  Painel de filtros avançados  */
+    .adv-panel {
+      background: #ffffff; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; margin-top: 12px;
+      display: none;
+    }
+    .adv-panel.open { display: block; }
+    .adv-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+    .adv-row { margin-bottom: 16px; }
+    .adv-label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; font-weight: 500; margin-bottom: 8px;
+    }
+    .adv-label span:last-child { font-size: 13px; font-weight: 600; color: var(--brown); }
+    .range-input { width: 100%; accent-color: var(--brown); cursor: pointer; }
+    .range-ticks {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted-fg); margin-top: 4px;
+    }
+    .btn-clear-adv {
+      width: 100%; height: 36px; border: 1px solid var(--border);
+      border-radius: 8px; background: #ffffff; font-size: 13px;
+      color: var(--fg); cursor: pointer; transition: background var(--t);
+      margin-top: 4px;
+    }
+    .btn-clear-adv:hover { background: var(--muted); }
 
-/* ── ADDRESS FORM ── */
-.co-address-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.co-address-full { grid-column: span 2; }
-.co-input-group { display: flex; flex-direction: column; gap: 6px; }
-.co-input-group label { font-size: .72rem; font-weight: 800; color: var(--kb-text-tertiary); text-transform: uppercase; letter-spacing: .05em; }
-.co-input {
-  padding: 13px 16px; background: var(--kb-bg-primary);
-  border: 2px solid var(--kb-border-light); border-radius: 12px;
-  font-size: .9rem; font-weight: 600; color: var(--kb-text-primary);
-  font-family: inherit; outline: none; transition: all .2s;
-}
-.co-input:focus { border-color: var(--kb-primary); box-shadow: 0 0 0 4px rgba(212,160,23,.1); }
-.co-textarea { min-height: 90px; resize: none; line-height: 1.5; }
+    /* BLOCO: produtos em destaque */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .section-title { font-size: 18px; font-weight: 700; color: var(--fg); }
+    .section-sub { font-size: 13px; color: var(--muted-fg); margin-bottom: 16px; }
+    .btn-see-all {
+      font-size: 13px; font-weight: 500; color: var(--brown);
+      background: none; border: none; cursor: pointer;
+      transition: opacity var(--t);
+    }
+    .btn-see-all:hover { opacity: .7; }
 
-/* ── PAYMENT ── */
-.co-pay-methods { display: flex; flex-direction: column; gap: 10px; }
-.co-pay-method {
-  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-  border: 2px solid var(--kb-border-light); border-radius: 14px;
-  cursor: pointer; transition: all .2s; background: var(--kb-bg-primary);
-}
-.co-pay-method:hover { border-color: var(--kb-primary-light); transform: translateY(-1px); }
-.co-pay-method.selected { border-color: var(--kb-primary); background: rgba(212,160,23,.07); }
-.co-pay-method input { display: none; }
-.co-pay-radio {
-  width: 20px; height: 20px; border: 2.5px solid var(--kb-border-light);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  transition: all .2s; flex-shrink: 0;
-}
-.co-pay-method.selected .co-pay-radio { border-color: var(--kb-primary); background: var(--kb-primary); }
-.co-pay-method.selected .co-pay-radio::after { content: ""; width: 7px; height: 7px; background: #fff; border-radius: 50%; }
-.co-pay-logo {
-  width: 48px; height: 48px; border-radius: 12px;
-  background: var(--kb-bg-tertiary); border: 1px solid var(--kb-border-light);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; color: var(--kb-text-tertiary); flex-shrink: 0;
-}
-.co-pay-name { font-size: .95rem; font-weight: 800; color: var(--kb-text-primary); }
-.co-pay-desc { font-size: .75rem; color: var(--kb-text-tertiary); font-weight: 500; margin-top: 2px; }
+    /* Controles de scroll (setas) */
+    .scroll-controls { display: flex; align-items: center; gap: 8px; }
+    .btn-scroll {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid var(--border); background: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background var(--t);
+    }
+    .btn-scroll:hover { background: var(--muted); }
+    .btn-scroll:disabled { opacity: .3; cursor: default; }
+    .btn-scroll svg { width: 14px; height: 14px; color: var(--fg); }
 
-.co-phone-wrap { margin-top: 20px; }
-.co-phone-label { font-size: .8rem; font-weight: 800; color: var(--kb-text-secondary); margin-bottom: 8px; display: block; }
-.co-phone-row {
-  display: flex; border: 2px solid var(--kb-border-light); border-radius: 14px;
-  overflow: hidden; background: var(--kb-bg-primary); transition: all .2s;
-}
-.co-phone-row:focus-within { border-color: var(--kb-primary); box-shadow: 0 0 0 4px rgba(212,160,23,.1); }
-.co-phone-prefix {
-  padding: 0 14px; background: var(--kb-bg-tertiary); border-right: 1px solid var(--kb-border-light);
-  display: flex; align-items: center; font-weight: 800; color: var(--kb-text-secondary); font-size: .9rem;
-}
-.co-phone-input {
-  flex: 1; padding: 13px 16px; border: none; background: transparent;
-  font-size: 1rem; font-weight: 700; color: var(--kb-text-primary); outline: none;
-  font-family: 'Courier New', monospace; letter-spacing: .05em;
-}
-.co-phone-hint { font-size: .72rem; font-weight: 600; color: var(--kb-text-tertiary); margin-top: 6px; padding-left: 4px; }
+    /* --- Container de scroll horizontal dos produtos --- */
+    .products-scroll {
+      display: flex; gap: 16px; overflow-x: auto;
+      padding-bottom: 8px; scroll-behavior: smooth;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .products-scroll::-webkit-scrollbar { display: none; }
 
-.co-client-row {
-  display: flex; align-items: center; gap: 14px; padding: 16px;
-  background: var(--kb-bg-tertiary); border-radius: 14px; border: 1px solid var(--kb-border-light);
-}
-.co-client-avatar {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--kb-primary) 0%, var(--kb-primary-dark) 100%);
-  color: #fff; display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; font-weight: 900;
-}
-.co-client-name { font-size: 1rem; font-weight: 800; color: var(--kb-text-primary); }
-.co-client-email { font-size: .85rem; color: var(--kb-text-tertiary); font-weight: 500; }
+    /* --- Card de produto individual --- */
+    .product-card {
+      flex-shrink: 0; width: 190px;
+      background: #ffffff;
+      border: 1.5px solid #c8860a;
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      transition: box-shadow var(--t), transform var(--t);
+      animation: fadeIn .35s ease both;
+    }
+    .product-card:hover { box-shadow: 0 8px 24px rgba(120,53,15,.18); transform: translateY(-3px); }
+    .product-card:hover .pcard-img { transform: scale(1.05); }
 
-.co-section-header {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 18px; padding-bottom: 10px;
-  border-bottom: 2px solid var(--kb-border-light);
-}
-.co-section-header i { color: var(--kb-primary); font-size: 1.1rem; }
-.co-section-header h2 { font-size: 1rem; font-weight: 900; color: var(--kb-text-primary); text-transform: uppercase; letter-spacing: .05em; }
+    .pcard-img-wrap { position: relative; overflow: hidden; border-radius: 18px 18px 0 0; }
+    .pcard-img { width: 100%; height: 140px; object-fit: cover; display: block; transition: transform 350ms ease; }
+    .pcard-tag {
+      position: absolute; top: 10px; left: 10px;
+      background: #d4a017; color: #1a1a1a;
+      font-size: 10px; font-weight: 700; padding: 4px 10px;
+      border-radius: 100px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .pcard-add {
+      position: absolute; bottom: 10px; right: 10px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #92400e; color: #fff;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      transition: background var(--t), transform var(--t);
+    }
+    .pcard-add:hover { background: #78350f; transform: scale(1.1); }
+    .pcard-add svg { width: 18px; height: 18px; }
 
-/* ── SCHEDULE BANNERS ── */
-.pickup-section-banner,
-.delivery-section-banner {
-  background: linear-gradient(135deg, var(--kb-primary-dark) 0%, #6B3010 100%);
-  border-radius: 20px; padding: 24px 24px 20px;
-  color: #fff; margin-bottom: 20px;
-  position: relative; overflow: hidden;
-}
-.delivery-section-banner { display: none; }
+    .pcard-body { padding: 12px 12px 14px; }
+    .pcard-category {
+      font-size: 10px; font-weight: 700; color: #92400e;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
+    }
+    .pcard-name { font-size: 15px; font-weight: 700; color: var(--fg); line-height: 1.25; margin-bottom: 4px; }
+    .pcard-bakery-name {
+      font-size: 11px; color: #92400e; font-weight: 500;
+      margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pcard-sold { font-size: 11px; color: var(--muted-fg); margin-bottom: 8px; }
+    .pcard-stats { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .pstat { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--fg); font-weight: 500; }
+    .pstat svg { width: 14px; height: 14px; color: #92400e; flex-shrink: 0; }
+    .pcard-price { font-size: 18px; font-weight: 800; color: #92400e; }
 
-.pickup-section-banner::before, .delivery-section-banner::before {
-  content: ""; position: absolute; top: -30px; right: -30px;
-  width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.05);
-}
-.pickup-section-banner::after, .delivery-section-banner::after {
-  content: ""; position: absolute; bottom: -20px; right: 60px;
-  width: 80px; height: 80px; border-radius: 50%; background: rgba(212,160,23,.15);
-}
+    /* ===== BLOCO: BAKERIES LIST (lista de padarias) ===== */
+    .bakeries-section { margin-top: 40px; margin-bottom: 48px; }
+    .bakeries-scroll-list {
+      overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+      max-height: 320px; padding-right: 4px;
+      scrollbar-width: thin; scrollbar-color: var(--brown) transparent;
+    }
+    .bakery-card {
+      background: #ffffff; border: 1.5px solid #c8860a;
+      border-radius: 20px; padding: 16px;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer; transition: box-shadow var(--t), transform var(--t);
+      animation: fadeUp .3s ease both;
+    }
+    .bakery-card:hover { box-shadow: 0 8px 24px rgba(120,53,15,.18); transform: translateY(-2px); }
 
-.pickup-banner-top, .delivery-banner-top {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px;
-}
-.pickup-banner-icon, .delivery-banner-icon {
-  width: 48px; height: 48px; border-radius: 13px;
-  background: rgba(212,160,23,.2); border: 1.5px solid rgba(212,160,23,.4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem; color: var(--kb-primary); flex-shrink: 0;
-}
-.pickup-banner-text h3, .delivery-banner-text h3 { font-size: 1.1rem; font-weight: 900; margin-bottom: 3px; }
-.pickup-banner-text p, .delivery-banner-text p { font-size: .82rem; font-weight: 500; opacity: .8; line-height: 1.5; }
+    .bakery-logo {
+      flex-shrink: 0; width: 64px; height: 64px;
+      border-radius: 14px; overflow: hidden;
+      background: linear-gradient(135deg, #92400e, #b45309);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .bakery-logo img { width: 100%; height: 100%; object-fit: cover; }
 
-.pickup-empty-state, .delivery-empty-state {
-  background: rgba(255,255,255,.08); border-radius: 14px;
-  border: 1.5px dashed rgba(255,255,255,.25);
-  padding: 20px 16px; margin-bottom: 16px;
-  display: flex; align-items: center; gap: 14px;
-}
-.pickup-empty-icon, .delivery-empty-icon {
-  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
-  display: flex; align-items: center; justify-content: center; font-size: 1.2rem; opacity: .7;
-}
-.pickup-empty-text, .delivery-empty-text { font-size: .85rem; font-weight: 600; opacity: .75; line-height: 1.5; }
-.pickup-empty-text strong, .delivery-empty-text strong { display: block; font-size: .92rem; font-weight: 800; opacity: 1; margin-bottom: 2px; }
+    .bakery-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .bakery-name {
+      font-weight: 700; font-size: 15px; color: var(--fg);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;
+    }
+    .bakery-stats {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--muted-fg);
+      flex-wrap: nowrap; white-space: nowrap; margin-bottom: 6px;
+    }
+    .bakery-stats svg { width: 12px; height: 12px; }
+    .dot { color: rgba(0,0,0,.2); }
+    .bakery-addr {
+      display: flex; align-items: flex-start; gap: 4px;
+      font-size: 11px; color: var(--muted-fg);
+    }
+    .bakery-addr svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 2px; color: #b45309; }
+    .addr-province { font-size: 10px; opacity: .7; }
 
-.pickup-confirmed-state, .delivery-confirmed-state {
-  background: rgba(255,255,255,.09); border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.18);
-  margin-bottom: 16px; overflow: hidden; display: none;
-}
-.pickup-confirmed-rows, .delivery-confirmed-rows { padding: 4px 16px; }
+    .bakery-right {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: flex-end;
+      justify-content: space-between; align-self: stretch; gap: 8px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 2px;
+      font-size: 11px; font-weight: 600; padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .badge-open  { background: #16a34a; color: #fff; }
+    .badge-closed { background: #ef4444; color: #fff; }
+    .badge svg { width: 10px; height: 10px; }
+    .btn-catalog {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 500; color: var(--brown);
+      background: none; border: none; cursor: pointer;
+      transition: opacity var(--t); white-space: nowrap;
+    }
+    .btn-catalog:hover { opacity: .7; }
+    .btn-catalog svg { width: 11px; height: 11px; }
 
-.pickup-conf-item, .delivery-conf-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.1); gap: 12px;
-}
-.pickup-conf-item:last-child, .delivery-conf-item:last-child { border-bottom: none; }
+    /* ===== BLOCO: PROMO SLIDES (carrossel promocional) ===== */
+    .promo-section {
+      position: relative; max-width: 1280px; margin: 40px auto 0;
+      padding: 0 16px 48px;
+    }
+    .promo-track {
+      display: flex; overflow-x: auto; scroll-behavior: smooth;
+      scrollbar-width: none; -ms-overflow-style: none;
+      border-radius: 24px;
+      scroll-snap-type: x mandatory;
+    }
+    .promo-track::-webkit-scrollbar { display: none; }
+    .promo-slide {
+      flex: 0 0 100%; scroll-snap-align: start;
+      height: 340px; border-radius: 24px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .promo-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      object-position: center; z-index: 0;
+    }
+    .promo-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.65) 100%);
+      z-index: 1;
+    }
+    .promo-content {
+      position: relative; z-index: 2;
+      padding: 32px; max-width: 480px;
+    }
+    .promo-tag {
+      display: inline-block; background: #d4a017; color: #1a1a1a;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .promo-title {
+      font-size: clamp(22px, 4vw, 32px); font-weight: 800;
+      margin-bottom: 8px; line-height: 1.2; color: #d4a017;
+    }
+    .promo-desc {
+      font-size: 14px; margin-bottom: 16px; line-height: 1.5;
+      color: #fff; opacity: .9;
+    }
+    .promo-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 100px;
+      background: #ffffff; color: #1a1a1a; border: none; cursor: pointer;
+      font-size: 14px; font-weight: 700;
+      transition: opacity var(--t), transform var(--t);
+    }
+    .promo-btn:hover { opacity: .85; transform: translateY(-1px); }
+    .promo-dots {
+      display: flex; justify-content: center; gap: 8px; margin-top: 16px;
+    }
+    .promo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); border: none; cursor: pointer;
+      transition: background var(--t), width var(--t);
+    }
+    .promo-dot.active { background: #d4a017; width: 24px; border-radius: 100px; }
 
-.pickup-conf-left, .delivery-conf-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 640px) {
+      .stats-inner { grid-template-columns: 1fr; }
+      .filter-row { flex-direction: column; align-items: flex-start; }
+      .promo-slide { height: 300px; }
+      .promo-content { padding: 20px; }
+    }
+    @media (max-width: 400px) {
+      /* ajuste extra para telas muito pequenas */
+    }
 
-/* ── PRODUCT IMAGE thumbnail ── */
-.conf-img {
-  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-  object-fit: cover;
-  border: 1.5px solid rgba(255,255,255,.2);
-  background: rgba(255,255,255,.1);
-}
+    /* ===== ANIMAÇÕES ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+  </style>
 
-.pickup-conf-name, .delivery-conf-name { font-size: .85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pickup-conf-date, .delivery-conf-date { font-size: .7rem; opacity: .6; font-weight: 500; }
-
-.pickup-conf-time, .delivery-conf-time {
-  font-size: .85rem; font-weight: 700;
-  background: rgba(212,160,23,.3); color: var(--kb-primary);
-  border: 1px solid rgba(212,160,23,.45);
-  padding: 4px 11px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
-}
-
-.pickup-ready-bar, .delivery-ready-bar {
-  background: rgba(212,160,23,.15); border-top: 1px solid rgba(212,160,23,.3);
-  padding: 12px 16px; display: flex; align-items: center; gap: 10px;
-}
-.pickup-ready-bar i, .delivery-ready-bar i { color: var(--kb-primary); font-size: .9rem; flex-shrink: 0; }
-.pickup-ready-bar span, .delivery-ready-bar span { font-size: .82rem; font-weight: 600; color: #FEF3C7; line-height: 1.4; }
-.pickup-ready-bar strong, .delivery-ready-bar strong { font-weight: 800; color: #fff; }
-
-.pickup-banner-actions, .delivery-banner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-.btn-pickup-primary, .btn-delivery-primary {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 12px 22px; border-radius: 12px; border: none; cursor: pointer;
-  background: var(--kb-primary); color: #fff;
-  font-size: .88rem; font-weight: 800; font-family: inherit;
-  text-decoration: none; transition: all .2s;
-  box-shadow: 0 4px 14px rgba(212,160,23,.3);
-}
-.btn-pickup-primary:hover, .btn-delivery-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
-
-/* ── SIDEBAR ── */
-.co-summary {
-  background: var(--kb-bg-secondary); border-radius: 20px;
-  border: 1.5px solid var(--kb-border-light);
-  box-shadow: 0 8px 28px rgba(139,69,19,.07);
-  overflow: hidden; position: sticky; top: calc(var(--hdr-h) + 20px);
-}
-.co-summary-head {
-  padding: 22px 24px;
-  background: linear-gradient(135deg, var(--kb-primary-dark) 0%, #5C2E12 100%);
-  color: #fff;
-}
-.co-summary-head-title { font-size: 1.1rem; font-weight: 900; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.co-summary-head-bakery { font-size: .8rem; font-weight: 600; opacity: .85; display: flex; align-items: center; gap: 6px; }
-.co-summary-items { padding: 10px 18px; max-height: 260px; overflow-y: auto; }
-.co-summary-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--kb-border-light); }
-.co-summary-item:last-child { border-bottom: none; }
-.co-si-img {
-  width: 44px; height: 44px; border-radius: 10px;
-  background: var(--kb-bg-tertiary); border: 1px solid var(--kb-border-light);
-  overflow: hidden; flex-shrink: 0;
-}
-.co-si-img img { width: 100%; height: 100%; object-fit: cover; }
-.co-si-name { font-size: .83rem; font-weight: 800; color: var(--kb-text-primary); }
-.co-si-qty { font-size: .72rem; color: var(--kb-text-tertiary); font-weight: 600; }
-.co-si-price { font-size: .88rem; font-weight: 900; color: var(--kb-primary-dark); margin-left: auto; white-space: nowrap; }
-.co-totals { padding: 18px 22px; background: var(--kb-bg-primary); border-top: 1px solid var(--kb-border-light); }
-.co-total-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: .85rem; font-weight: 600; color: var(--kb-text-secondary); }
-.co-total-row.grand { margin-top: 10px; padding-top: 14px; border-top: 2px dashed var(--kb-border-light); font-size: 1rem; color: var(--kb-text-primary); }
-.co-total-row.grand span:last-child { font-size: 1.6rem; font-weight: 900; color: var(--kb-primary-dark); }
-.co-submit-wrap { padding: 20px 22px; background: var(--kb-bg-tertiary); border-top: 1px solid var(--kb-border-light); }
-.co-btn-pay {
-  width: 100%; padding: 16px; border-radius: 14px; border: none;
-  background: linear-gradient(135deg, var(--kb-primary) 0%, var(--kb-primary-dark) 100%);
-  color: #fff; font-size: 1rem; font-weight: 900; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-family: inherit; box-shadow: 0 6px 18px rgba(139,69,19,.25); transition: all .3s;
-}
-.co-btn-pay:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(139,69,19,.35); }
-.co-btn-secure { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: .72rem; font-weight: 700; color: var(--kb-text-tertiary); }
-.co-btn-secure i { color: #10B981; }
-
-.co-overlay {
-  position: fixed; inset: 0; background: rgba(250,247,242,.94);
-  backdrop-filter: blur(4px); z-index: 9999;
-  display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-}
-.co-overlay.active { display: flex; }
-.co-overlay-icon {
-  width: 68px; height: 68px; border-radius: 50%;
-  background: var(--kb-primary-dark); color: #fff;
-  display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
-  animation: pulse 1.8s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
-.co-overlay-text { font-size: .95rem; font-weight: 700; color: var(--kb-text-primary); }
-.co-overlay-sub { font-size: .8rem; color: var(--kb-text-tertiary); }
-
-@media (max-width: 1050px) { .co-layout { grid-template-columns: 1fr; } }
-@media (max-width: 768px) {
-  .co-container { padding: 0 16px; }
-  .co-page { padding: 20px 0 80px; }
-  .co-page-title { font-size: 1.5rem; }
-  .pickup-banner-actions, .delivery-banner-actions { flex-direction: column; }
-}
-@media (max-width: 480px) {
-  .co-address-form { grid-template-columns: 1fr; }
-  .co-address-full { grid-column: span 1; }
-}
-</style>
+  <!-- Font Awesome (ícones) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
 <body>
 
-<header class="kb-header"><div class="kb-header-spacer"></div></header>
+  <!-- ============================================================ -->
+  <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+  <!-- ============================================================ -->
+  <div class="container">
 
-<div class="co-overlay" id="coOverlay">
-  <div class="co-overlay-icon"><i class="fas fa-credit-card"></i></div>
-  <div class="co-overlay-text">A processar o pagamento...</div>
-  <div class="co-overlay-sub">Por favor, aguarde</div>
-</div>
-
-<div class="co-page">
-  <div class="co-container">
-
-    <h1 class="co-page-title"><i class="fas fa-credit-card"></i> Finalizar Pedido</h1>
-
-    <form method="POST" id="checkoutForm">
-      <div class="co-layout">
-        <div class="co-main">
-
-          <!-- 1. Envio -->
-          <div class="co-card">
-            <div class="co-card-head">
-              <div class="co-card-head-icon"><i class="fas fa-truck"></i></div>
-              <span class="co-card-head-title">Informações de Envio</span>
-            </div>
-            <div class="co-card-body">
-              <div class="co-delivery-toggles">
-                <label class="co-delivery-toggle selected" data-type="pickup">
-                  <input type="radio" name="delivery_type" value="pickup" checked>
-                  <i class="fas fa-store"></i>
-                  <span>Levantamento</span>
-                </label>
-                <label class="co-delivery-toggle" data-type="delivery">
-                  <input type="radio" name="delivery_type" value="delivery">
-                  <i class="fas fa-motorcycle"></i>
-                  <span>Entrega</span>
-                </label>
-              </div>
-              <div id="shipAddress" style="display:none;">
-                <div class="co-section-header">
-                  <i class="fas fa-location-dot"></i><h2>Endereço de Entrega</h2>
-                </div>
-                <div class="co-address-form">
-                  <div class="co-input-group"><label>Cidade</label><input type="text" name="addr_city" class="co-input" placeholder="ex: Maputo"></div>
-                  <div class="co-input-group"><label>Bairro</label><input type="text" name="addr_neighborhood" class="co-input" placeholder="ex: Polana"></div>
-                  <div class="co-input-group co-address-full"><label>Rua / Morada</label><input type="text" name="addr_street" class="co-input" placeholder="ex: Av. 25 de Setembro, 1234"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pickup schedule -->
-          <div class="pickup-section-banner" id="pickupSection">
-            <div class="pickup-banner-top">
-              <div>
-                <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-bottom:6px;">Horário de Levantamento</div>
-                <div class="pickup-banner-text">
-                  <h3><i class="fas fa-clock" style="font-size:.95rem;margin-right:7px;"></i>Retirada no Estabelecimento</h3>
-                  <p id="pickupSubtitle">Escolha quando quer ir buscar os seus produtos.</p>
-                </div>
-              </div>
-              <div class="pickup-banner-icon"><i class="fas fa-bag-shopping"></i></div>
-            </div>
-            <div class="pickup-empty-state" id="pickupEmptyState">
-              <div class="pickup-empty-icon"><i class="fas fa-calendar-xmark"></i></div>
-              <div class="pickup-empty-text">
-                <strong>Sem horário confirmado</strong>
-                Ainda não escolheu um horário de levantamento. Clique abaixo para seleccionar.
-              </div>
-            </div>
-            <div class="pickup-confirmed-state" id="pickupConfirmedState">
-              <div class="pickup-confirmed-rows" id="pickupConfirmedRows"></div>
-              <div class="pickup-ready-bar">
-                <i class="fas fa-circle-check"></i>
-                <span>Os pedidos estarão disponíveis para retirada no dia <strong id="pickupReadyDate">—</strong> às <strong id="pickupReadyTime">—</strong></span>
-              </div>
-            </div>
-            <div class="pickup-banner-actions">
-              <a href="time.html" class="btn-pickup-primary">
-                <i class="fas fa-plus" id="btnPickupIcon"></i>
-                <span id="btnPickupLabel">Seleccionar Horário</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Delivery schedule -->
-          <div class="delivery-section-banner" id="deliverySection">
-            <div class="delivery-banner-top">
-              <div>
-                <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-bottom:6px;">Horário de Entrega</div>
-                <div class="delivery-banner-text">
-                  <h3><i class="fas fa-motorcycle" style="font-size:.95rem;margin-right:7px;"></i>Entrega ao Domicílio</h3>
-                  <p id="deliverySubtitle">Escolha quando quer receber os seus produtos em casa.</p>
-                </div>
-              </div>
-              <div class="delivery-banner-icon"><i class="fas fa-motorcycle"></i></div>
-            </div>
-            <div class="delivery-empty-state" id="deliveryEmptyState">
-              <div class="delivery-empty-icon"><i class="fas fa-calendar-xmark"></i></div>
-              <div class="delivery-empty-text">
-                <strong>Sem horário de entrega confirmado</strong>
-                Ainda não escolheu um horário de entrega. Clique abaixo para seleccionar.
-              </div>
-            </div>
-            <div class="delivery-confirmed-state" id="deliveryConfirmedState">
-              <div class="delivery-confirmed-rows" id="deliveryConfirmedRows"></div>
-              <div class="delivery-ready-bar">
-                <i class="fas fa-circle-check"></i>
-                <span>A entrega está prevista para o dia <strong id="deliveryReadyDate">—</strong> às <strong id="deliveryReadyTime">—</strong></span>
-              </div>
-            </div>
-            <div class="delivery-banner-actions">
-              <a href="entrega.html" class="btn-delivery-primary">
-                <i class="fas fa-plus" id="btnDeliveryIcon"></i>
-                <span id="btnDeliveryLabel">Seleccionar Horário de Entrega</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- 2. Pagamento -->
-          <div class="co-card">
-            <div class="co-card-head">
-              <div class="co-card-head-icon"><i class="fas fa-wallet"></i></div>
-              <span class="co-card-head-title">Forma de Pagamento</span>
-            </div>
-            <div class="co-card-body">
-              <div class="co-pay-methods" id="payMethods">
-                <label class="co-pay-method" data-method="mpesa">
-                  <input type="radio" name="operator" value="mpesa">
-                  <span class="co-pay-radio"></span>
-                  <span class="co-pay-logo"><i class="fas fa-mobile-screen-button"></i></span>
-                  <span><div class="co-pay-name">M-Pesa</div><div class="co-pay-desc">Vodacom · 84, 85</div></span>
-                </label>
-                <label class="co-pay-method" data-method="emola">
-                  <input type="radio" name="operator" value="emola">
-                  <span class="co-pay-radio"></span>
-                  <span class="co-pay-logo"><i class="fas fa-mobile-screen-button"></i></span>
-                  <span><div class="co-pay-name">e-Mola</div><div class="co-pay-desc">Movitel · 86, 87</div></span>
-                </label>
-                <label class="co-pay-method" data-method="mkesh">
-                  <input type="radio" name="operator" value="mkesh">
-                  <span class="co-pay-radio"></span>
-                  <span class="co-pay-logo"><i class="fas fa-mobile-screen-button"></i></span>
-                  <span><div class="co-pay-name">mKesh</div><div class="co-pay-desc">mCel · 82, 83</div></span>
-                </label>
-                <label class="co-pay-method" data-method="imali">
-                  <input type="radio" name="operator" value="imali">
-                  <span class="co-pay-radio"></span>
-                  <span class="co-pay-logo"><i class="fas fa-credit-card"></i></span>
-                  <span><div class="co-pay-name">iMali</div><div class="co-pay-desc">Conta iMali</div></span>
-                </label>
-              </div>
-              <div class="co-phone-wrap" id="phoneWrap" style="display:none;">
-                <label class="co-phone-label" id="phoneLabel">Número de Telefone</label>
-                <div class="co-phone-row">
-                  <span class="co-phone-prefix">🇲🇿 +258</span>
-                  <input type="tel" name="phone" id="phoneInput" class="co-phone-input" placeholder="84XXXXXXX" maxlength="9" inputmode="numeric" disabled>
-                </div>
-                <p class="co-phone-hint" id="phoneHint"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. Notas -->
-          <div class="co-card">
-            <div class="co-card-head">
-              <div class="co-card-head-icon"><i class="fas fa-comment-dots"></i></div>
-              <span class="co-card-head-title">Notas e Dados</span>
-            </div>
-            <div class="co-card-body">
-              <div class="co-input-group" style="margin-bottom:20px;">
-                <label>Observações do Pedido</label>
-                <textarea name="customer_notes" class="co-input co-textarea" placeholder="ex: Sem sal, embrulhado separado..."></textarea>
-              </div>
-              <div class="co-section-header" style="border-bottom:none;">
-                <i class="fas fa-user-check"></i><h2>Dados da Conta</h2>
-              </div>
-              <div class="co-client-row">
-                <div class="co-client-avatar">A</div>
-                <div>
-                  <div class="co-client-name">Ana Machava</div>
-                  <div class="co-client-email">ana.machava@email.com</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /.co-main -->
-
-        <aside class="co-sidebar">
-          <div class="co-summary">
-            <div class="co-summary-head">
-              <div class="co-summary-head-title"><i class="fas fa-receipt"></i> Resumo do Pedido</div>
-              <div class="co-summary-head-bakery"><i class="fas fa-store"></i> Padaria Central</div>
-            </div>
-            <div class="co-summary-items">
-              <div class="co-summary-item">
-                <div class="co-si-img"><img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=80&q=80" alt="Pão Quente" onerror="this.parentNode.innerHTML='🍞'"></div>
-                <div style="flex:1;"><div class="co-si-name">Pão Quente</div><div class="co-si-qty">2× 35,00 MT</div></div>
-                <div class="co-si-price">70,00 MT</div>
-              </div>
-              <div class="co-summary-item">
-                <div class="co-si-img"><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=80&q=80" alt="Arrofada" onerror="this.parentNode.innerHTML='🍰'"></div>
-                <div style="flex:1;"><div class="co-si-name">Arrofada</div><div class="co-si-qty">1× 180,00 MT</div></div>
-                <div class="co-si-price">180,00 MT</div>
-              </div>
-              <div class="co-summary-item">
-                <div class="co-si-img"><img src="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=80&q=80" alt="Bolo de Ananás" onerror="this.parentNode.innerHTML='🎂'"></div>
-                <div style="flex:1;"><div class="co-si-name">Bolo de Ananás</div><div class="co-si-qty">1× 90,00 MT</div></div>
-                <div class="co-si-price">90,00 MT</div>
-              </div>
-            </div>
-            <div class="co-totals">
-              <div class="co-total-row"><span>Subtotal (4 itens)</span><span id="subtotalAmount" data-val="340">340,00 MT</span></div>
-              <div class="co-total-row"><span>Entrega</span><span id="deliveryAmt">0,00 MT</span></div>
-              <div class="co-total-row grand"><span>Total</span><span id="grandTotalAmt">340,00 MT</span></div>
-            </div>
-            <div class="co-submit-wrap">
-              <button type="submit" class="co-btn-pay" id="submitBtn">
-                <i class="fas fa-lock"></i> Pagar 340,00 MT
-              </button>
-              <div class="co-btn-secure"><i class="fas fa-shield-halved"></i> Pagamento 100% seguro</div>
-            </div>
-          </div>
-        </aside>
+    <!-- ===== BLOCO: SEARCH ===== -->
+    <div class="search-section">
+      <div class="search-wrap">
+        <!-- Ícone de lupa -->
+        <svg class="search-icon-left" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
+        </svg>
+       
+        <input id="searchBox" class="search-box" type="text" 
+       placeholder="Pesquisar padarias ou produtos..." 
+       readonly 
+       onclick="window.location.href='generalsearch.html'" />
       </div>
-    </form>
+    </div>
+
+    <!-- ===== BLOCO: FEATURED PRODUCTS ===== -->
+    <div style="margin-bottom:40px">
+      <div class="section-header">
+        <span class="section-title">Produtos em Destaque</span>
+        <div class="scroll-controls">
+          <!-- Botões de navegação horizontal -->
+          <button class="btn-scroll" id="scrollLeft" disabled>
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="btn-scroll" id="scrollRight">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn-see-all" onclick="window.location.href='productssearch.html'">Ver Todos</button>
+        </div>
+      </div>
+      <p class="section-sub">Os produtos mais populares das melhores padarias perto de si.</p>
+      <!-- Container dos cards de produtos (preenchido via JS) -->
+      <div class="products-scroll" id="productsScroll"></div>
+    </div>
+
+    <!-- BLOCO: BAKERIES LIST  -->
+    <div class="bakeries-section">
+      <div class="section-header">
+        <span class="section-title">Explore Padarias À Sua Volta</span>
+        <button class="btn-see-all" onclick="window.location.href='bakeriessearch.html'">Ver Todas</button>
+      </div>
+      <p class="section-sub">Encontre os melhores estabelecimentos perto de si e descubra sabores únicos.</p>
+
+      <!-- Lista de padarias  -->
+      <div class="bakeries-scroll-list" id="bakeriesList"></div>
+
+      <!-- Mensagem exibida quando não há padarias -->
+      <div id="emptyBakeries" style="display:none;text-align:center;padding:48px 0;color:var(--muted-fg)">
+        <div style="font-size:48px;margin-bottom:12px"></div>
+        <p>Nenhuma padaria encontrada. Tente ajustar os filtros.</p>
+      </div>
+    </div>
+
+  </div> <!-- fim .container -->
+
+  <!-- BLOCO: PROMO SLIDES (carrossel)  -->
+
+  <div class="promo-section">
+    <div class="promo-track" id="promoTrack">
+      <!-- Slide 1 -->
+      <div class="promo-slide">
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=1400&h=600&fit=crop" alt="Pão fresco"/>
+        <div class="promo-overlay"></div>
+        <div class="promo-content">
+          <span class="promo-tag">Novidade</span>
+          <h2 class="promo-title">Pão fresco, todos os dias</h2>
+          <p class="promo-desc">Receba pão quentinho direto do forno dos melhores estabelecimentos.</p>
+          <button class="promo-btn" onclick="window.location.href='kwetobread-produtos.html'">Explorar Produtos</button>
+        </div>
+      </div>
+      <!-- Slide 2 -->
+      <div class="promo-slide">
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1400&h=600&fit=crop" alt="Croissants"/>
+        <div class="promo-overlay"></div>
+        <div class="promo-content">
+          <span class="promo-tag">Em Destaque</span>
+          <h2 class="promo-title">Croissants artesanais</h2>
+          <p class="promo-desc">Sabor autêntico, ingredientes selecionados e técnicas tradicionais francesas.</p>
+          <button class="promo-btn" onclick="window.location.href='kwetobread-produtos.html'">Ver Cardápio</button>
+        </div>
+      </div>
+      <!-- Slide 3 -->
+      <div class="promo-slide">
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=1400&h=600&fit=crop" alt="Bolos"/>
+        <div class="promo-overlay"></div>
+        <div class="promo-content">
+          <span class="promo-tag">Promoção</span>
+          <h2 class="promo-title">Doces para todas as ocasiões</h2>
+          <p class="promo-desc">Bolos, tortas e sobremesas feitas com carinho pelos nossos parceiros.</p>
+          <button class="promo-btn" onclick="window.location.href='kwetobread-padarias.html'">Encontrar Estabelecimentos</button>
+        </div>
+      </div>
+    </div>
+    <!-- Indicadores (dots) do carrossel -->
+    <div class="promo-dots" id="promoDots"></div>
   </div>
-</div>
 
-<script>
-// ── Product image map ──
-const PRODUCT_IMGS = {
-  'Pão Quente':     'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=80&q=80',
-  'Arrofada':       'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=80&q=80',
-  'Bolo de Ananás': 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=80&q=80',
-};
-function imgFor(nome) {
-  return PRODUCT_IMGS[nome] || '';
-}
-function confImgHTML(nome) {
-  const src = imgFor(nome);
-  return src
-    ? `<img class="conf-img" src="${src}" alt="${nome}" onerror="this.style.display='none'">`
-    : `<div class="conf-img" style="display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--kb-primary)"><i class="fas fa-bread-slice"></i></div>`;
-}
+ 
+  <script>
+  
 
-// ── Helpers ──
-function fmtDate(iso) {
-  if (!iso) return '—';
-  const [y,m,d] = iso.split('-');
-  return `${d}/${m}/${y.slice(2)}`;
-}
+    // Lista de padarias
+    const BAKERIES = [
+      { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },
+      { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },
+      { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" },
+      { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },
+      { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },
+      { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },
+      { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },
+      { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },
+      { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },
+      { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },
+      { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },
+      { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },
+    ];
 
-// ── Pickup state ──
-(function loadPickupState() {
-  const raw = localStorage.getItem('kweto_horarios');
-  if (!raw) return;
-  const data = JSON.parse(raw);
-  const sels = data.selections || [];
-  if (!sels.length) return;
+    // Lista de produtos
+    const PRODUCTS = [
+      { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop", tag:"Destaque" },
+      { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop", tag:"Novo" },
+      { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop" },
+      { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop" },
+      { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop", tag:"Popular" },
+      { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop" },
+      { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop" },
+    ];
 
-  document.getElementById('pickupEmptyState').style.display = 'none';
-  document.getElementById('pickupConfirmedState').style.display = 'block';
-  document.getElementById('pickupSubtitle').textContent = 'Os seu horário de levantamento está confirmado.';
-  document.getElementById('btnPickupIcon').className = 'fas fa-pen-to-square';
-  document.getElementById('btnPickupLabel').textContent = 'Alterar Horário';
+   
+    // BLOCO: estdo da aplicação
 
-  const rows = document.getElementById('pickupConfirmedRows');
-  const horaRetirada = data.prontoAte || '—';
-  sels.forEach(s => {
-    const prepTime = s.slotRange ? s.slotRange.split('-')[1] : s.horario;
-    const row = document.createElement('div');
-    row.className = 'pickup-conf-item';
-    row.innerHTML = `
-      <div class="pickup-conf-left">
-        ${confImgHTML(s.nome)}
-        <div>
-          <div class="pickup-conf-name">${s.nome}</div>
-          <div class="pickup-conf-date">Pronto às ${prepTime}</div>
+    let st = { sort:"rating" }; // estado simples (pode ser expandido)
+
+   
+    // BLOCO: referências dom
+ 
+    const bakeriesList   = document.getElementById("bakeriesList");
+    const emptyBaks      = document.getElementById("emptyBakeries");
+    const productsScroll = document.getElementById("productsScroll");
+    const scrollLeftBtn  = document.getElementById("scrollLeft");
+    const scrollRightBtn = document.getElementById("scrollRight");
+
+  
+    // BLOCO: renderização de produtos
+
+    productsScroll.innerHTML = PRODUCTS.map(p => `
+      <div class="product-card">
+        <div class="pcard-img-wrap">
+          <img class="pcard-img" src="${p.image}" alt="${p.name}" loading="lazy"/>
+          ${p.tag ? `<span class="pcard-tag">${p.tag}</span>` : ""}
+          <button class="pcard-add" onclick="event.stopPropagation()">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="pcard-body">
+          <div class="pcard-category">${p.category}</div>
+          <div class="pcard-name">${p.name}</div>
+          <div class="pcard-bakery-name"><i class="fa-solid fa-store"></i> ${p.bakery}</div>
+          <div class="pcard-sold">${p.sold}+ vendidos</div>
+          <div class="pcard-stats">
+            <div class="pstat">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M20 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+              <span>${p.units}<br/><span style="font-size:10px;color:#8E8E93;font-weight:400">unidades</span></span>
+            </div>
+            <div class="pstat">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>
+              <span>${p.time}<br/><span style="font-size:10px;color:#8E8E93;font-weight:400">min</span></span>
+            </div>
+          </div>
+          <div class="pcard-price">${p.price} MT</div>
         </div>
       </div>
-      <div class="pickup-conf-time">${horaRetirada}</div>`;
-    rows.appendChild(row);
-  });
+    `).join("");
 
-  document.getElementById('pickupReadyDate').textContent = fmtDate(sels[0]?.data);
-  document.getElementById('pickupReadyTime').textContent = data.prontoAte || '—';
-})();
+    
+    // BLOCO: controle de scroll de produtos (setas)
+  
+    function updateScrollBtns() {
+      scrollLeftBtn.disabled  = productsScroll.scrollLeft <= 0;
+      scrollRightBtn.disabled = productsScroll.scrollLeft + productsScroll.clientWidth >= productsScroll.scrollWidth - 4;
+    }
+    productsScroll.addEventListener("scroll", updateScrollBtns);
+    scrollLeftBtn.addEventListener("click",  ()=>{ productsScroll.scrollBy({left:-200, behavior:"smooth"}); });
+    scrollRightBtn.addEventListener("click", ()=>{ productsScroll.scrollBy({left:200, behavior:"smooth"}); });
+    updateScrollBtns();
 
-// ── Delivery state ──
-(function loadDeliveryState() {
-  const raw = localStorage.getItem('kweto_horarios_entrega');
-  if (!raw) return;
-  const data = JSON.parse(raw);
-  const horario = data.horario || null;
-  const dataSel = data.data   || null;
-  if (!horario) return;
+    
+    // BLOCO: Renderização das padarias (com ordenação)
+  
+    function getFiltered() {
+      // Retorna todas as padarias ordenadas por rating (decrescente)
+      return [...BAKERIES].sort((a, b) => b.rating - a.rating);
+    }
 
-  document.getElementById('deliveryEmptyState').style.display = 'none';
-  document.getElementById('deliveryConfirmedState').style.display = 'block';
-  document.getElementById('deliverySubtitle').textContent = 'O seu horário de entrega está confirmado.';
-  document.getElementById('btnDeliveryIcon').className = 'fas fa-pen-to-square';
-  document.getElementById('btnDeliveryLabel').textContent = 'Alterar Horário de Entrega';
+    function renderBakeries() {
+      const list = getFiltered();
+      if (!list.length) {
+        bakeriesList.style.display = "none";
+        emptyBaks.style.display = "block";
+        return;
+      }
+      bakeriesList.style.display = "flex";
+      emptyBaks.style.display = "none";
 
-  const PRODUCTS = ['Pão Quente', 'Arrofada', 'Bolo de Ananás'];
-  function randomPrepTime() {
-    const h = 8 + Math.floor(Math.random() * 10);
-    const m = Math.floor(Math.random() * 60);
-    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-  }
-  const rows = document.getElementById('deliveryConfirmedRows');
-  PRODUCTS.forEach(nome => {
-    const row = document.createElement('div');
-    row.className = 'delivery-conf-item';
-    row.innerHTML = `
-      <div class="delivery-conf-left">
-        ${confImgHTML(nome)}
-        <div>
-          <div class="delivery-conf-name">${nome}</div>
-          <div class="delivery-conf-date">Pronto às ${randomPrepTime()}</div>
+      bakeriesList.innerHTML = list.map(b => `
+        <div class="bakery-card">
+          <div class="bakery-logo">
+            ${b.logo ? `<img src="${b.logo}" alt="${b.name}" loading="lazy"/>` : '<i class="fa-solid fa-bread-slice"></i>'}
+          </div>
+          <div class="bakery-body">
+            <div class="bakery-name">${b.name}</div>
+            <div class="bakery-stats" style="margin-bottom:2px">
+              <svg viewBox="0 0 24 24" style="fill:#fbbf24;width:12px;height:12px;flex-shrink:0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <strong style="color:var(--fg)">${b.rating}</strong><span>(${b.reviews})</span>
+            </div>
+            <div class="bakery-stats">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#b45309;width:12px;height:12px;flex-shrink:0"><path stroke-linecap="round" d="M20 7H4a1 1 0 00-1 1v10a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zM16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+              <span>${b.products} produtos</span>
+              <span class="dot">·</span>
+              <i class="fa-solid fa-fire" style="color:#ea580c;font-size:12px;flex-shrink:0"></i>
+              <span>${b.orders} encomendas</span>
+            </div>
+            <div class="bakery-addr">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <div><span>${b.address}, ${b.city}</span><br/><span class="addr-province">${b.province}</span></div>
+            </div>
+          </div>
+          <div class="bakery-right">
+            ${b.open
+              ? `<span class="badge badge-open">Aberto</span>`
+              : `<span class="badge badge-closed">Fechado</span>`}
+            <button class="btn-catalog">Ver Catálogo <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
         </div>
-      </div>
-      <div class="delivery-conf-time">${horario}</div>`;
-    rows.appendChild(row);
-  });
+      `).join("");
+    }
 
-  document.getElementById('deliveryReadyDate').textContent = fmtDate(dataSel);
-  document.getElementById('deliveryReadyTime').textContent = horario;
-})();
-
-// ── Payment methods ──
-const PAY_CFG = {
-  mpesa: { name:'M-Pesa',  hint:'Vodacom: 84XXXXXXX ou 85XXXXXXX', prefixes:['84','85'], maxLen:9 },
-  emola: { name:'e-Mola',  hint:'Movitel: 86XXXXXXX ou 87XXXXXXX', prefixes:['86','87'], maxLen:9 },
-  mkesh: { name:'mKesh',   hint:'mCel: 82XXXXXXX ou 83XXXXXXX',    prefixes:['82','83'], maxLen:9 },
-  imali: { name:'iMali',   hint:'Conta (ex: 210000004) ou telefone', prefixes:[], maxLen:12 },
-};
-let selectedMethod = null;
-const phoneWrap  = document.getElementById('phoneWrap');
-const phoneLabel = document.getElementById('phoneLabel');
-const phoneInput = document.getElementById('phoneInput');
-const phoneHint  = document.getElementById('phoneHint');
-const submitBtn  = document.getElementById('submitBtn');
-
-function selectMethod(el) {
-  const m = el.dataset.method;
-  if (!m || !PAY_CFG[m]) return;
-  const cfg = PAY_CFG[m];
-  document.querySelectorAll('.co-pay-method').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
-  const radio = el.querySelector('input[type="radio"]');
-  if (radio) radio.checked = true;
-  selectedMethod = m;
-  phoneWrap.style.display = 'block';
-  phoneInput.disabled = false;
-  phoneInput.setAttribute('required','required');
-  phoneInput.setAttribute('maxlength', cfg.maxLen);
-  if (m !== 'imali') phoneInput.setAttribute('pattern','8[2-7][0-9]{7}');
-  else phoneInput.removeAttribute('pattern');
-  phoneLabel.textContent = 'Número ' + cfg.name;
-  phoneHint.textContent = cfg.hint;
-  phoneHint.style.color = '';
-  phoneInput.focus();
-}
-
-document.getElementById('payMethods').addEventListener('click', function(e) {
-  const el = e.target.closest('.co-pay-method');
-  if (el) selectMethod(el);
-}, true);
-
-phoneInput.addEventListener('input', function() {
-  let v = this.value.replace(/\D/g,'');
-  const cfg = selectedMethod ? PAY_CFG[selectedMethod] : null;
-  if (cfg && v.length > cfg.maxLen) v = v.slice(0, cfg.maxLen);
-  this.value = v;
-  if (!cfg) return;
-  if (selectedMethod === 'imali') {
-    phoneHint.style.color = v.length >= 6 ? '#16A34A' : '';
-    phoneHint.textContent = v.length >= 6 ? '✓ Formato válido para iMali' : cfg.hint;
-  } else if (v.length >= 2) {
-    const p = v.substring(0,2);
-    if (cfg.prefixes.length && !cfg.prefixes.includes(p)) {
-      phoneHint.style.color = '#DC2626'; phoneHint.textContent = '⚠ ' + cfg.hint;
-    } else if (v.length === 9) {
-      phoneHint.style.color = '#16A34A'; phoneHint.textContent = '✓ ' + cfg.name + ' detectado';
-    } else { phoneHint.style.color = ''; phoneHint.textContent = cfg.hint; }
-  }
-});
-
-// ── Delivery toggle ──
-const delToggles    = document.querySelectorAll('.co-delivery-toggle');
-const shipAddress   = document.getElementById('shipAddress');
-const pickupSection = document.getElementById('pickupSection');
-const deliverySection = document.getElementById('deliverySection');
-const subtotalEl    = document.getElementById('subtotalAmount');
-const deliveryEl    = document.getElementById('deliveryAmt');
-const grandEl       = document.getElementById('grandTotalAmt');
-
-delToggles.forEach(toggle => {
-  toggle.addEventListener('click', function() {
-    delToggles.forEach(el => {
-      el.classList.remove('selected');
-      el.querySelector('input').checked = false;
+   
+    // BLOCO: interação com a busca (redirecionamento)
+    
+    document.getElementById("searchBox").addEventListener("click", () => {
+      window.location.href = "kwetobread-search.html";
     });
-    this.classList.add('selected');
-    this.querySelector('input').checked = true;
 
-    const isDelivery = this.dataset.type === 'delivery';
-    shipAddress.style.display     = isDelivery ? 'block' : 'none';
-    pickupSection.style.display   = isDelivery ? 'none'  : 'block';
-    deliverySection.style.display = isDelivery ? 'block' : 'none';
+  
+    // BLOCO: carrossel promocional (slides)
+  
+    const track = document.getElementById("promoTrack");
+    const dotsContainer = document.getElementById("promoDots");
+    const slides = track.querySelectorAll(".promo-slide");
+    let current = 0;
 
-    const sub = parseFloat(subtotalEl.dataset.val);
-    const df  = isDelivery ? 150 : 0;
-    const tot = sub + df;
-    deliveryEl.textContent = df.toFixed(2).replace('.',',') + ' MT';
-    grandEl.textContent    = tot.toFixed(2).replace('.',',') + ' MT';
-    submitBtn.innerHTML = `<i class="fas fa-lock"></i> Pagar ${tot.toFixed(2).replace('.',',')} MT`;
-  });
-});
+    // Cria os dots dinamicamente
+    slides.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.className = "promo-dot" + (i === 0 ? " active" : "");
+      dot.onclick = () => goTo(i);
+      dotsContainer.appendChild(dot);
+    });
 
-// ── Form submit ──
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-  const op = document.querySelector('input[name="operator"]:checked');
-  if (!op) { e.preventDefault(); alert('Selecione uma forma de pagamento.'); return; }
-  const phone = phoneInput.value.replace(/\D/g,'');
-  if (op.value === 'imali') {
-    if (!/^\d{6,12}$/.test(phone)) { e.preventDefault(); alert('Para iMali, insira a conta (mínimo 6 dígitos).'); return; }
-  } else {
-    if (!/^8[2-7]\d{7}$/.test(phone)) { e.preventDefault(); alert('Número inválido. Use 9 dígitos começando com 82–87.'); return; }
-  }
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
-  document.getElementById('coOverlay').classList.add('active');
-});
+    // Função para ir a um slide específico
+    function goTo(n) {
+      current = n;
+      track.scrollTo({ left: track.offsetWidth * n, behavior: "smooth" });
+      dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === n));
+    }
 
-// ── Scroll to hash on load ──
-if (window.location.hash) {
-  const el = document.querySelector(window.location.hash);
-  if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 200);
-}
-</script>
+    // Actualiza o dot ativo conforme o scroll
+    track.addEventListener("scroll", () => {
+      const idx = Math.round(track.scrollLeft / track.offsetWidth);
+      if (idx !== current) {
+        current = idx;
+        dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+      }
+    });
+
+    // Avança automaticamente a cada 5 segundos
+    setInterval(() => goTo((current + 1) % slides.length), 5000);
+
+   
+
+    renderBakeries();
+  </script>
 </body>
 </html>
