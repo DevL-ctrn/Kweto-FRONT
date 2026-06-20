@@ -639,7 +639,7 @@ function renderBakeries() {
 // BLOCO: RENDER PRINCIPAL (ORQUESTRADOR)
 
 // Função "mestre" chamada sempre que algo muda (pesquisa, filtro, slider).
-// Mais simples do que nas outras páginas, porque não há abas para alternar.
+
 function render() {
   panelBakeries.classList.add("active");   // garante que o painel de padarias está sempre visível (única vista desta página)
   const hasActive = state.bakeryFilter !== "Todas" || state.minRating > 0; // verifica se algum filtro está activo (diferente do valor por omissão)
