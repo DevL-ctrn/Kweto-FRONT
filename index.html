@@ -397,9 +397,8 @@
 </head>
 <body>
 
-  <!-- ============================================================ -->
   <!-- ===== CONTEÚDO PRINCIPAL ===== -->
-  <!-- ============================================================ -->
+
   <div class="container">
 <br>
     <!-- ===== BLOCO: SEARCH ===== -->
@@ -457,7 +456,7 @@
       </div>
     </div>
 
-  </div> <!-- fim .container -->
+  </div> 
 
   <!-- BLOCO: PROMO SLIDES (carrossel)  -->
 
@@ -465,7 +464,7 @@
     <div class="promo-track" id="promoTrack">
       <!-- Slide 1 -->
       <div class="promo-slide">
-        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1568254183919-78a4f43a2877?w=1400&h=600&fit=crop" alt="Pão fresco"/>
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1644015272264-2d70518c2046?w=1400&h=600&fit=crop" alt="Variedade de pães e produtos de padaria"/>
         <div class="promo-overlay"></div>
         <div class="promo-content">
           <span class="promo-tag">RECOMENDADO PARA SI</span>
@@ -476,7 +475,7 @@
       </div>
       <!-- Slide 2 -->
       <div class="promo-slide">
-        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1400&h=600&fit=crop" alt="Croissants"/>
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1759256243611-502772ac391b?w=1400&h=600&fit=crop" alt="Pessoa a usar aplicação de mapa no telemóvel"/>
         <div class="promo-overlay"></div>
         <div class="promo-content">
           <span class="promo-tag">NOVIDADE</span>
@@ -487,7 +486,7 @@
       </div>
       <!-- Slide 3 -->
       <div class="promo-slide">
-        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=1400&h=600&fit=crop" alt="Bolos"/>
+        <img class="promo-img" crossorigin="anonymous" src="https://images.unsplash.com/photo-1705972018470-a89eda1c6ce4?w=1400&h=600&fit=crop" alt="Vitrine farta de pastéis e doces"/>
         <div class="promo-overlay"></div>
         <div class="promo-content">
           <span class="promo-tag">OFERTAS</span>
@@ -501,54 +500,68 @@
     <div class="promo-dots" id="promoDots"></div>
   </div>
 
- 
   <script>
-  
 
-    // Lista de padarias
+    // BLOCO: DADOS — LISTA DE PADARIAS
+   
+    // Array de objectos com os dados estáticos (mock) de cada padaria.
+    // Cada objecto representa uma padaria com: id (identificador único),
+    // name (nome), logo (URL da imagem), city/province (localização),
+    // address (morada completa), rating (nota média), reviews (nº de avaliações),
+    // orders (nº de encomendas feitas), products (nº de produtos no catálogo),
+    // open (true/false se está aberta agora) e specialty (especialidade da casa).
     const BAKERIES = [
-      { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },
-      { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },
-      { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" },
-      { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },
-      { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },
-      { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },
-      { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },
-      { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },
-      { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },
-      { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },
-      { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },
-      { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },
-    ];
-
-    // Lista de produtos
-    const PRODUCTS = [
-      { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop", tag:"Destaque" },
-      { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop", tag:"Novo" },
-      { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop" },
-      { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop" },
-      { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop", tag:"Popular" },
-      { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop" },
-      { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop" },
-    ];
-
-   
-    // BLOCO: estdo da aplicação
-
-    let st = { sort:"rating" }; // estado simples (pode ser expandido)
-
-   
-    // BLOCO: referências dom
- 
-    const bakeriesList   = document.getElementById("bakeriesList");
-    const emptyBaks      = document.getElementById("emptyBakeries");
-    const productsScroll = document.getElementById("productsScroll");
-    const scrollLeftBtn  = document.getElementById("scrollLeft");
-    const scrollRightBtn = document.getElementById("scrollRight");
+      { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },        // padaria 1: Pastelaria Cristal (aberta)
+      { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },          // padaria 2: Padaria Miramar (aberta)
+      { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" }, // padaria 3: Bonjour Boulangerie (aberta, maior nº de encomendas)
+      { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },        // padaria 4: Pastelaria Nautilus (aberta)
+      { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },           // padaria 5: Padaria São Paulo (fechada)
+      { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },     // padaria 6: Confeitaria Paris (aberta)
+      { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },           // padaria 7: Padaria Maputo Bakery (aberta)
+      { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },        // padaria 8: Padaria Forno Quente, em Matola (aberta)
+      { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },         // padaria 9: Pastelaria Tia Maria (fechada)
+      { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },         // padaria 10: Padaria Central de Maputo (rating mais alto, aberta)
+      { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },      // padaria 11: Sweet House Maputo (aberta)
+      { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },                // padaria 12: Padaria Bela Vista (fechada, rating mais baixo da lista)
+    ]; // fim do array BAKERIES
 
   
-    // BLOCO: renderização de produtos
+    // BLOCO: DADOS — LISTA DE PRODUTOS
+   
+    // Array de objectos com os dados estáticos (mock) de cada produto em destaque.
+    // Campos: id, name (nome do produto), bakery (nome da padaria que o vende),
+    // category (categoria do produto), price (preço em string, formato "xx,xx"),
+    // sold (quantas unidades já foram vendidas hoje), units (stock total disponível),
+    // time (tempo estimado de preparação em minutos), image (URL da foto) e
+    // tag (etiqueta opcional como "Destaque", "Novo" ou "Popular").
+    const PRODUCTS = [
+      { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop", tag:"Destaque" }, // produto 1: Pastel de Nata, com etiqueta "Destaque"
+      { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop", tag:"Novo" },      // produto 2: Croissant de Manteiga, com etiqueta "Novo"
+      { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop" },                  // produto 3: Bolo de Mel, sem etiqueta
+      { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop" },                  // produto 4: Pão de Centeio, sem etiqueta
+      { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop", tag:"Popular" },   // produto 5: Éclair de Chocolate, com etiqueta "Popular"
+      { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop" },                  // produto 6: Broa de Milho, sem etiqueta
+      { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop" },                  // produto 7: Queque de Frutas, sem etiqueta
+    ]; // fim do array PRODUCTS
 
+    
+    // BLOCO: ESTADO DA APLICAÇÃO
+    
+    let st = { sort:"rating" }; // objecto de estado simples; guarda o critério de ordenação actual (pode ser expandido com mais filtros no futuro)
+
+   
+    // BLOCO: REFERÊNCIAS DOM
+    
+    const bakeriesList   = document.getElementById("bakeriesList");   // <div> onde a lista de padarias vai ser renderizada
+    const emptyBaks      = document.getElementById("emptyBakeries"); // <div> com a mensagem "nenhuma padaria encontrada"
+    const productsScroll = document.getElementById("productsScroll"); // <div> com scroll horizontal onde os cards de produtos entram
+    const scrollLeftBtn  = document.getElementById("scrollLeft");    // botão de seta para a esquerda (scroll de produtos)
+    const scrollRightBtn = document.getElementById("scrollRight");   // botão de seta para a direita (scroll de produtos)
+
+   
+    // BLOCO: RENDERIZAÇÃO DE PRODUTOS
+    
+    // Percorre o array PRODUCTS, gera o HTML de cada card de produto através de um template literal, junta tudo num único array de strings com .map() e insere o resultado final (.join("")) dentro do contentor productsScroll.
     productsScroll.innerHTML = PRODUCTS.map(p => `
       <div class="product-card">
         <div class="pcard-img-wrap">
@@ -576,38 +589,40 @@
           <div class="pcard-price">${p.price} MT</div>
         </div>
       </div>
-    `).join("");
+    `).join(""); // junta todos os cards (sem separador) numa única string HTML e injecta-a no contentor
 
+
+    // BLOCO: CONTROLO DE SCROLL DOS PRODUTOS (SETAS)
     
-    // BLOCO: controle de scroll de produtos (setas)
-  
+    // Activa/desactiva os botões de seta consoante a posição actual do scroll.
     function updateScrollBtns() {
-      scrollLeftBtn.disabled  = productsScroll.scrollLeft <= 0;
-      scrollRightBtn.disabled = productsScroll.scrollLeft + productsScroll.clientWidth >= productsScroll.scrollWidth - 4;
-    }
-    productsScroll.addEventListener("scroll", updateScrollBtns);
-    scrollLeftBtn.addEventListener("click",  ()=>{ productsScroll.scrollBy({left:-200, behavior:"smooth"}); });
-    scrollRightBtn.addEventListener("click", ()=>{ productsScroll.scrollBy({left:200, behavior:"smooth"}); });
-    updateScrollBtns();
+      scrollLeftBtn.disabled  = productsScroll.scrollLeft <= 0; // desactiva a seta esquerda se já estiver no início (scrollLeft = 0)
+      scrollRightBtn.disabled = productsScroll.scrollLeft + productsScroll.clientWidth >= productsScroll.scrollWidth - 4; // desactiva a seta direita se já estiver perto do fim (com margem de 4px)
+    } // fim updateScrollBtns
+    productsScroll.addEventListener("scroll", updateScrollBtns); // sempre que o utilizador faz scroll manual, reavalia o estado dos botões
+    scrollLeftBtn.addEventListener("click",  ()=>{ productsScroll.scrollBy({left:-200, behavior:"smooth"}); }); // ao clicar na seta esquerda, desloca o scroll 200px para a esquerda, com animação suave
+    scrollRightBtn.addEventListener("click", ()=>{ productsScroll.scrollBy({left:200, behavior:"smooth"}); });  // ao clicar na seta direita, desloca o scroll 200px para a direita, com animação suave
+    updateScrollBtns(); // chamada inicial para definir o estado correcto dos botões assim que a página carrega
 
-    
-    // BLOCO: Renderização das padarias (com ordenação)
-  
+    // BLOCO: RENDERIZAÇÃO DAS PADARIAS (COM ORDENAÇÃO)
+
+    // Devolve uma cópia do array BAKERIES ordenada da maior para a menor nota (rating).
     function getFiltered() {
-      // Retorna todas as padarias ordenadas por rating (decrescente)
-      return [...BAKERIES].sort((a, b) => b.rating - a.rating);
-    }
+      return [...BAKERIES].sort((a, b) => b.rating - a.rating); // [...BAKERIES] cria uma cópia para não alterar o array original; .sort() ordena por rating decrescente
+    } 
 
+    // Renderiza (desenha) a lista de padarias no DOM, ou mostra a mensagem de "vazio" se não houver resultados.
     function renderBakeries() {
-      const list = getFiltered();
-      if (!list.length) {
-        bakeriesList.style.display = "none";
-        emptyBaks.style.display = "block";
-        return;
+      const list = getFiltered(); // obtém a lista já ordenada por rating
+      if (!list.length) {                                  // se a lista estiver vazia (length 0)...
+        bakeriesList.style.display = "none";               // esconde o contentor da lista
+        emptyBaks.style.display = "block";                  // ...e mostra a mensagem de "nenhuma padaria encontrada"
+        return;                                              // sai da função, não há nada mais a renderizar
       }
-      bakeriesList.style.display = "flex";
-      emptyBaks.style.display = "none";
+      bakeriesList.style.display = "flex";   // garante que o contentor da lista está visível (layout flex em coluna)
+      emptyBaks.style.display = "none";      // esconde a mensagem de "vazio", já que há resultados
 
+  
       bakeriesList.innerHTML = list.map(b => `
         <div class="bakery-card">
           <div class="bakery-logo">
@@ -632,60 +647,58 @@
             </div>
           </div>
           <div class="bakery-right">
-            ${b.open
-              ? `<span class="badge badge-open">Aberto</span>`
-              : `<span class="badge badge-closed">Fechado</span>`}
+            ${b.open ? `<span class="badge badge-open">Aberto</span>` : `<span class="badge badge-closed">Fechado</span>`}
             <button class="btn-catalog">Ver Catálogo <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
-      `).join("");
-    }
+      `).join(""); // junta todos os cards de padaria numa única string e injecta-a no contentor bakeriesList
+    } 
 
-   
- 
     
-  document.getElementById("searchBox").addEventListener("click", function() {
-  window.location.href = "generalsearch.html";
-});
-
-  
-    // BLOCO: carrossel promocional (slides)
-  
-    const track = document.getElementById("promoTrack");
-    const dotsContainer = document.getElementById("promoDots");
-    const slides = track.querySelectorAll(".promo-slide");
-    let current = 0;
-
-    // Cria os dots dinamicamente
-    slides.forEach((_, i) => {
-      const dot = document.createElement("button");
-      dot.className = "promo-dot" + (i === 0 ? " active" : "");
-      dot.onclick = () => goTo(i);
-      dotsContainer.appendChild(dot);
+    // BLOCO: BARRA DE PESQUISA
+    
+    //Garante que clicar na caixa de pesquisa redireciona sempre para a página de pesquisa geral.
+    document.getElementById("searchBox").addEventListener("click", function() {
+      window.location.href = "generalsearch.html"; // navega para a página de pesquisa geral
     });
 
-    // Função para ir a um slide específico
-    function goTo(n) {
-      current = n;
-      track.scrollTo({ left: track.offsetWidth * n, behavior: "smooth" });
-      dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === n));
-    }
+   
+    // BLOCO: CARROSSEL PROMOCIONAL (SLIDES)
+    
+    const track = document.getElementById("promoTrack");           // contentor com scroll horizontal que guarda os slides
+    const dotsContainer = document.getElementById("promoDots");    // contentor onde os indicadores (dots) vão ser inseridos
+    const slides = track.querySelectorAll(".promo-slide");         // lista (NodeList) com todos os elementos .promo-slide dentro do track
+    let current = 0; // índice do slide actualmente visível, começa no primeiro (0)
 
-    // Actualiza o dot ativo conforme o scroll
+    // Para cada slide, cria dinamicamente um botão "dot" correspondente.
+    slides.forEach((_, i) => {                                                  // percorre cada slide; o primeiro argumento (slide em si) não é usado, por isso "_"
+      const dot = document.createElement("button");                            // cria um novo elemento <button>
+      dot.className = "promo-dot" + (i === 0 ? " active" : "");                 // aplica a classe "promo-dot"; se for o primeiro slide (i === 0), adiciona também "active"
+      dot.onclick = () => goTo(i);                                              // ao clicar no dot, chama goTo() para saltar para o slide correspondente (índice i)
+      dotsContainer.appendChild(dot);                                           // insere o dot criado dentro do contentor de dots
+    });
+
+    // Desloca o carrossel até ao slide de índice "n" e actualiza qual dot fica marcado como activo.
+    function goTo(n) {
+      current = n; // actualiza a variável de controlo com o novo índice activo
+      track.scrollTo({ left: track.offsetWidth * n, behavior: "smooth" }); // desloca o scroll horizontal até à posição do slide n (largura do track × n), com animação suave
+      dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === n)); // percorre todos os dots e adiciona/remove a classe "active" consoante o índice corresponder a n
+    } // fim goTo
+
+    // Sempre que o utilizador faz scroll manual (arrastar) no carrossel, sincroniza o dot activo com o slide visível.
     track.addEventListener("scroll", () => {
-      const idx = Math.round(track.scrollLeft / track.offsetWidth);
-      if (idx !== current) {
-        current = idx;
-        dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === idx));
+      const idx = Math.round(track.scrollLeft / track.offsetWidth); // calcula o índice do slide mais próximo com base na posição actual do scroll
+      if (idx !== current) {                                          // só actualiza se o índice realmente mudou (evita trabalho desnecessário)
+        current = idx;                                                // guarda o novo índice activo
+        dotsContainer.querySelectorAll(".promo-dot").forEach((d, i) => d.classList.toggle("active", i === idx)); // actualiza visualmente qual dot está activo
       }
     });
 
-    // Avança automaticamente a cada 5 segundos
+    // Avança automaticamente para o slide seguinte a cada 5 segundos (5000ms), voltando ao início ao chegar ao fim (operador % garante o ciclo).
     setInterval(() => goTo((current + 1) % slides.length), 5000);
 
-   
-
-    renderBakeries();
+  
+    renderBakeries(); // chama a renderização da lista de padarias assim que o script corre, para popular a página ao carregar
   </script>
 </body>
 </html>
