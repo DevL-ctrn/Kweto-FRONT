@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>KwetoBread - Pesquisa de Padarias</title>
 <style>
-  /* ── Reset & Base ── */
+
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   
   :root {
@@ -229,19 +229,18 @@
   .btn-apply-modal:hover { opacity: .8; }
 
 
-  /* ── Tab content panels ── */
+  /* Tab content panels */
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* ── Empty state ── */
+  /* Empty state */
   .empty {
     text-align: center; padding: 64px 0;
     color: var(--muted-fg); font-size: 14px;
   }
   .empty-icon { font-size: 48px; margin-bottom: 12px; }
 
-  /* ── Product grid (2 cols) ── */
-  /* ── Product grid (2 cols) ── */
+
   .product-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
   }
@@ -382,7 +381,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Staggered card delay helpers ── */
+  /* Staggered card delay helpers */
   .product-card:nth-child(1), .bakery-card:nth-child(1) { animation-delay: .00s; }
   .product-card:nth-child(2), .bakery-card:nth-child(2) { animation-delay: .04s; }
   .product-card:nth-child(3), .bakery-card:nth-child(3) { animation-delay: .08s; }
@@ -394,7 +393,7 @@
   .product-card:nth-child(9), .bakery-card:nth-child(9) { animation-delay: .32s; }
   .product-card:nth-child(10),.bakery-card:nth-child(10){ animation-delay: .36s; }
 
-  /* ── Responsive ── */
+  /* Responsive */
   @media (max-width: 400px) {
     .product-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
     .product-img { height: 96px; }
@@ -492,92 +491,117 @@
 </div>
 
 <script>
-/* ── DATA ── */
+/* BLOCO: DADOS — LISTA DE PRODUTOS */
 const PRODUCTS = [
-  { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop&auto=format", tag:"Destaque" },
-  { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop&auto=format", tag:"Novo" },
-  { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop&auto=format" },
-  { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop&auto=format" },
-  { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop&auto=format", tag:"Popular" },
-  { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop&auto=format" },
-  { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop&auto=format" },
-  { id:8,  name:"Macaron de Baunilha",     bakery:"Confeitaria Paris",       category:"Doces",              price:"125,00", sold:9,  units:35, time:30, image:"https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=400&h=400&fit=crop&auto=format" },
-  { id:9,  name:"Pão de Forma",            bakery:"Padaria Forno Quente",    category:"Pão",                price:"200,00", sold:25, units:100,time:15, image:"https://images.unsplash.com/photo-1565183928294-7063f23ce0f8?w=400&h=400&fit=crop&auto=format" },
-  { id:10, name:"Tarte de Morango",        bakery:"Pastelaria Nautilus",     category:"Bolos",              price:"280,00", sold:6,  units:15, time:40, image:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=400&fit=crop&auto=format" },
-  { id:11, name:"Bolo de Aniversário",     bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"850,00", sold:3,  units:5,  time:60, image:"https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400&h=400&fit=crop&auto=format", tag:"Destaque" },
-  { id:12, name:"Pão de Leite",            bakery:"Padaria Bela Vista",      category:"Pão",                price:"90,00",  sold:18, units:70, time:20, image:"https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=400&h=400&fit=crop&auto=format" },
-  { id:13, name:"Rosca de Coco",           bakery:"Padaria São Paulo",       category:"Bolos",              price:"130,00", sold:11, units:30, time:25, image:"https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400&h=400&fit=crop&auto=format" },
-  { id:14, name:"Pão Integral",            bakery:"Padaria Maputo Bakery",   category:"Pão",                price:"160,00", sold:22, units:50, time:15, image:"https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=400&h=400&fit=crop&auto=format", tag:"Novo" },
-  { id:15, name:"Cupcake de Chocolate",    bakery:"Sweet House Maputo",      category:"Doces",              price:"95,00",  sold:14, units:40, time:20, image:"https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&h=400&fit=crop&auto=format" },
-];
+  { id:1,  name:"Pastel de Nata",          bakery:"Pastelaria Cristal",      category:"Doces",              price:"75,00",  sold:12, units:40, time:20, image:"https://images.unsplash.com/photo-1568051243858-533a607809a5?w=400&h=400&fit=crop&auto=format", tag:"Destaque" }, // produto 1 (não usado nesta página)
+  { id:2,  name:"Croissant de Manteiga",   bakery:"Bonjour Boulangerie",     category:"Pastéis & Salgados", price:"110,00", sold:5,  units:50, time:30, image:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop&auto=format", tag:"Novo" },      // produto 2
+  { id:3,  name:"Bolo de Mel",             bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"220,00", sold:8,  units:20, time:45, image:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop&auto=format" },                  // produto 3
+  { id:4,  name:"Pão de Centeio",          bakery:"Padaria Central de Maputo",category:"Pão",               price:"180,00", sold:20, units:60, time:15, image:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop&auto=format" },                  // produto 4
+  { id:5,  name:"Éclair de Chocolate",     bakery:"Confeitaria Paris",       category:"Doces",              price:"150,00", sold:15, units:30, time:25, image:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&h=400&fit=crop&auto=format", tag:"Popular" },   // produto 5
+  { id:6,  name:"Broa de Milho",           bakery:"Padaria Miramar",         category:"Pão",                price:"100,00", sold:30, units:80, time:10, image:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=400&h=400&fit=crop&auto=format" },                  // produto 6
+  { id:7,  name:"Queque de Frutas",        bakery:"Sweet House Maputo",      category:"Bolos",              price:"120,00", sold:7,  units:25, time:20, image:"https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&h=400&fit=crop&auto=format" },                  // produto 7
+  { id:8,  name:"Macaron de Baunilha",     bakery:"Confeitaria Paris",       category:"Doces",              price:"125,00", sold:9,  units:35, time:30, image:"https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=400&h=400&fit=crop&auto=format" },                  // produto 8
+  { id:9,  name:"Pão de Forma",            bakery:"Padaria Forno Quente",    category:"Pão",                price:"200,00", sold:25, units:100,time:15, image:"https://images.unsplash.com/photo-1565183928294-7063f23ce0f8?w=400&h=400&fit=crop&auto=format" },                  // produto 9
+  { id:10, name:"Tarte de Morango",        bakery:"Pastelaria Nautilus",     category:"Bolos",              price:"280,00", sold:6,  units:15, time:40, image:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=400&fit=crop&auto=format" },                  // produto 10
+  { id:11, name:"Bolo de Aniversário",     bakery:"Pastelaria Tia Maria",    category:"Bolos",              price:"850,00", sold:3,  units:5,  time:60, image:"https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?w=400&h=400&fit=crop&auto=format", tag:"Destaque" },   // produto 11
+  { id:12, name:"Pão de Leite",            bakery:"Padaria Bela Vista",      category:"Pão",                price:"90,00",  sold:18, units:70, time:20, image:"https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=400&h=400&fit=crop&auto=format" },                  // produto 12
+  { id:13, name:"Rosca de Coco",           bakery:"Padaria São Paulo",       category:"Bolos",              price:"130,00", sold:11, units:30, time:25, image:"https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400&h=400&fit=crop&auto=format" },                  // produto 13
+  { id:14, name:"Pão Integral",            bakery:"Padaria Maputo Bakery",   category:"Pão",                price:"160,00", sold:22, units:50, time:15, image:"https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=400&h=400&fit=crop&auto=format", tag:"Novo" },      // produto 14
+  { id:15, name:"Cupcake de Chocolate",    bakery:"Sweet House Maputo",      category:"Doces",              price:"95,00",  sold:14, units:40, time:20, image:"https://images.unsplash.com/photo-1614707267537-b85aaf00c4b7?w=400&h=400&fit=crop&auto=format" },                  // produto 15
+]; 
+
+/* 
+   BLOCO: DADOS — LISTA DE PADARIAS
+   
+*/
 const BAKERIES = [
-  { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },
-  { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },
-  { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" },
-  { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },
-  { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },
-  { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },
-  { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },
-  { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },
-  { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },
-  { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },
-  { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },
-  { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },
-];
+  { id:1,  name:"Pastelaria Cristal",        logo:"https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. 24 de Julho, 1234 – Sommerschield",            rating:4.8, reviews:312, orders:1420, products:94,  open:true,  specialty:"Pastéis & Bolos" },        // padaria 1
+  { id:2,  name:"Padaria Miramar",           logo:"https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Mártires da Machava, 45 – Miramar",           rating:4.7, reviews:198, orders:980,  products:72,  open:true,  specialty:"Pão Artesanal" },          // padaria 2
+  { id:3,  name:"Bonjour Boulangerie",       logo:"https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua Pereira do Lago, 12 – Polana",                rating:4.9, reviews:541, orders:2300, products:138, open:true,  specialty:"Croissants & Viennoiserie" }, // padaria 3
+  { id:4,  name:"Pastelaria Nautilus",       logo:"https://images.unsplash.com/photo-1550617931-e17a7b70dce2?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Marginal, 3100 – Costa do Sol",               rating:4.6, reviews:267, orders:1100, products:85,  open:true,  specialty:"Pastéis de Nata" },        // padaria 4
+  { id:5,  name:"Padaria São Paulo",         logo:"https://images.unsplash.com/photo-1517433670267-08bbd4be890f?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Paulo Samuel Kankhomba, 88 – Baixa",          rating:4.4, reviews:145, orders:620,  products:58,  open:false, specialty:"Pão de Forma" },           // padaria 5 (fechada)
+  { id:6,  name:"Confeitaria Paris",         logo:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua da Mesquita, 56 – Alto Maé",                  rating:4.8, reviews:389, orders:1760, products:112, open:true,  specialty:"Macarons & Eclairs" },     // padaria 6
+  { id:7,  name:"Padaria Maputo Bakery",     logo:"https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Kenneth Kaunda, 923 – Polana Caniço",         rating:4.5, reviews:178, orders:790,  products:67,  open:true,  specialty:"Pão Integral" },           // padaria 7
+  { id:8,  name:"Padaria Forno Quente",      logo:"https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=200&h=200&fit=crop&auto=format", city:"Matola", province:"Maputo", address:"Av. das FPLM, 210 – Matola",                     rating:4.6, reviews:221, orders:870,  products:78,  open:true,  specialty:"Bolos Regionais" },        // padaria 8 (Matola)
+  { id:9,  name:"Pastelaria Tia Maria",      logo:"https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Rua do Bagamoyo, 78 – Baixa",                    rating:4.7, reviews:304, orders:1350, products:96,  open:false, specialty:"Bolos de Festa" },         // padaria 9 (fechada)
+  { id:10, name:"Padaria Central de Maputo", logo:"https://images.unsplash.com/photo-1483695028939-5bb13f8648b0?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Praça 25 de Junho, 3 – Baixa",                   rating:4.9, reviews:612, orders:2800, products:155, open:true,  specialty:"Pão de Centeio" },         // padaria 10 (rating mais alto)
+  { id:11, name:"Sweet House Maputo",        logo:"https://images.unsplash.com/photo-1612203985729-70726954388c?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Julius Nyerere, 450 – Sommerschield",        rating:4.5, reviews:133, orders:540,  products:49,  open:true,  specialty:"Cupcakes & Donuts" },      // padaria 11
+  { id:12, name:"Padaria Bela Vista",        logo:"https://images.unsplash.com/photo-1635864459744-ea74e46e81bc?w=200&h=200&fit=crop&auto=format", city:"Maputo", province:"Maputo", address:"Av. Acordos de Lusaka, 15 – Bela Vista",         rating:4.3, reviews:87,  orders:310,  products:41,  open:false, specialty:"Pastéis" },                // padaria 12 (fechada)
+]; 
+
+// Lista de estados usados nos chips de filtro de padarias
 const BAKERY_STATUS = ["Todas","Abertas","Fechadas"];
 
+
+// BLOCO: ESTADO DA APLICAÇÃO
+
 let state = {
-  query: "",
-  bakeryFilter: "Todas",
-  minRating: 0,
+  query: "",            // texto actualmente escrito na barra de pesquisa
+  bakeryFilter: "Todas",  // estado de padaria seleccionado no filtro (Todas/Abertas/Fechadas)
+  minRating: 0,           // avaliação mínima exigida pelo slider (0 = "todas")
 };
 
-const searchInput    = document.getElementById("searchInput");
-const clearBtn       = document.getElementById("clearBtn");
-const filterBtn      = document.getElementById("filterBtn");
-const bakeryChips    = document.getElementById("bakeryChips");
-const panelBakeries  = document.getElementById("panelBakeries");
-const bakeryList     = document.getElementById("bakeryList");
-const emptyBakeries  = document.getElementById("emptyBakeries");
-const filterOverlay  = document.getElementById("filterOverlay");
-const filterClose    = document.getElementById("filterClose");
-const clearFiltersBtn = document.getElementById("clearFilters");
-const applyFiltersBtn = document.getElementById("applyFilters");
-const ratingSlider   = document.getElementById("ratingSlider");
-const ratingVal      = document.getElementById("ratingVal");
 
+// BLOCO: REFERÊNCIAS DOM
+
+const searchInput    = document.getElementById("searchInput");    // caixa de texto da pesquisa
+const clearBtn       = document.getElementById("clearBtn");       // botão "X" para limpar a pesquisa
+const filterBtn      = document.getElementById("filterBtn");      // botão que abre o modal de filtros
+const bakeryChips    = document.getElementById("bakeryChips");    // contentor dos chips de estado de padaria
+const panelBakeries  = document.getElementById("panelBakeries");  // painel com a lista de padarias
+const bakeryList     = document.getElementById("bakeryList");     // lista onde os cards de padaria são inseridos
+const emptyBakeries  = document.getElementById("emptyBakeries");  // mensagem "nenhuma padaria encontrada"
+const filterOverlay  = document.getElementById("filterOverlay");  // fundo escurecido + modal de filtros
+const filterClose    = document.getElementById("filterClose");    // botão "X" para fechar o modal de filtros
+const clearFiltersBtn = document.getElementById("clearFilters");  // botão "Limpar Filtros" dentro do modal
+const applyFiltersBtn = document.getElementById("applyFilters");  // botão "Aplicar" dentro do modal
+const ratingSlider   = document.getElementById("ratingSlider");   // slider de avaliação mínima
+const ratingVal      = document.getElementById("ratingVal");      // texto que mostra o valor actual do slider de avaliação
+
+
+// BLOCO: FUNÇÕES DE TEXTO (PESQUISA)
+
+// Normaliza uma string: põe em minúsculas e remove acentos/diacríticos,
+// para que "pão" e "pao" (ou "Pão") sejam tratados como equivalentes na pesquisa.
 function normalize(str) {
-  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-}
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // NFD separa letra+acento; a regex remove só os acentos (categoria Unicode de marcas diacríticas)
+} 
+
 function matchesInitials(name, q) {
-  if (!q) return true;
-  const nameWords = normalize(name).split(/\s+/);
-  const qWords = q.split(/\s+/).filter(Boolean);
-  return qWords.every(qw => nameWords.some(word => word.startsWith(qw)));
-}
+  if (!q) return true;                                   // se não há texto de pesquisa, considera que bate sempre
+  const nameWords = normalize(name).split(/\s+/);          // separa o nome da padaria em palavras (já normalizado, sem acentos)
+  const qWords = q.split(/\s+/).filter(Boolean);            // separa o texto pesquisado em palavras, removendo strings vazias
+  return qWords.every(qw => nameWords.some(word => word.startsWith(qw))); // exige que CADA palavra pesquisada seja início de PELO MENOS UMA palavra do nome
+} 
+
+// BLOCO: FILTRAGEM DE DADOS
 
 function filteredBakeries() {
-  const q = normalize(state.query.trim());
+  const q = normalize(state.query.trim());                   // normaliza o texto de pesquisa
   return BAKERIES.filter(b => {
-    const matchQ = !q || matchesInitials(b.name, q);
-    const matchF = state.bakeryFilter === "Todas"
-      || (state.bakeryFilter === "Abertas"  &&  b.open)
-      || (state.bakeryFilter === "Fechadas" && !b.open);
-    return matchQ && matchF && b.rating >= state.minRating;
+    const matchQ = !q || matchesInitials(b.name, q);          // padaria entra se não há pesquisa, ou se o nome bate por iniciais
+    const matchF = state.bakeryFilter === "Todas"               // padaria entra se o filtro é "Todas"...
+      || (state.bakeryFilter === "Abertas"  &&  b.open)          // ...ou se o filtro é "Abertas" e a padaria está aberta...
+      || (state.bakeryFilter === "Fechadas" && !b.open);          // ...ou se o filtro é "Fechadas" e a padaria está fechada
+    return matchQ && matchF && b.rating >= state.minRating;       // só entra se cumprir pesquisa, estado e avaliação mínima
   });
-}
+} 
+
+// BLOCO: RENDERIZAÇÃO DOS CHIPS DE FILTRO
 
 function renderChips() {
   bakeryChips.innerHTML = BAKERY_STATUS.map(s =>
     `<button class="chip ${state.bakeryFilter === s ? 'active' : ''}" onclick="setBakeryFilter('${s}')">${s}</button>`
-  ).join("");
-}
+  ).join(""); // gera um botão por estado e junta tudo numa única string HTML
+} 
+
+// BLOCO: RENDERIZAÇÃO DAS PADARIAS
 
 function renderBakeries() {
-  const baks = filteredBakeries();
-  if (!baks.length) { bakeryList.style.display="none"; emptyBakeries.style.display="block"; return; }
-  bakeryList.style.display = "flex";
-  emptyBakeries.style.display = "none";
+  const baks = filteredBakeries();   // calcula a lista filtrada na hora (esta página não recebe a lista como parâmetro, ao contrário das outras)
+  if (!baks.length) { bakeryList.style.display="none"; emptyBakeries.style.display="block"; return; } // sem resultados: esconde lista, mostra mensagem vazia e sai
+  bakeryList.style.display = "flex";    // garante que a lista está visível
+  emptyBakeries.style.display = "none"; // esconde a mensagem de vazio
   bakeryList.innerHTML = baks.map(b => `
     <div class="bakery-card">
       <div class="bakery-logo">
@@ -608,38 +632,60 @@ function renderBakeries() {
         <button class="btn-catalog">Ver Catálogo <i class="fa-solid fa-arrow-right"></i></button>
       </div>
     </div>`
-  ).join("");
-}
+  ).join(""); // junta todos os cards de padaria numa única string e injecta no DOM
+} 
 
+
+// BLOCO: RENDER PRINCIPAL (ORQUESTRADOR)
+
+// Função "mestre" chamada sempre que algo muda (pesquisa, filtro, slider).
+// Mais simples do que nas outras páginas, porque não há abas para alternar.
 function render() {
-  panelBakeries.classList.add("active");
-  const hasActive = state.bakeryFilter !== "Todas" || state.minRating > 0;
-  filterBtn.classList.toggle("active", hasActive);
-  renderChips();
-  renderBakeries();
-}
+  panelBakeries.classList.add("active");   // garante que o painel de padarias está sempre visível (única vista desta página)
+  const hasActive = state.bakeryFilter !== "Todas" || state.minRating > 0; // verifica se algum filtro está activo (diferente do valor por omissão)
+  filterBtn.classList.toggle("active", hasActive); // dá destaque visual ao botão "Filtrar" quando há filtros aplicados
+  renderChips();      // redesenha os chips de filtro (para reflectir qual está activo)
+  renderBakeries();    // redesenha a lista de padarias com os critérios actuais
+} 
 
+
+// BLOCO: EVENTOS — PESQUISA
+
+// Sempre que o utilizador escreve na caixa de pesquisa, actualiza o estado,
+// mostra/esconde o botão "limpar" e volta a renderizar tudo.
 searchInput.addEventListener("input", e => { state.query = e.target.value; clearBtn.classList.toggle("visible", !!state.query); render(); });
+// Ao clicar no "X", limpa o texto da pesquisa, esconde o botão de limpar, devolve o foco à caixa e renderiza de novo.
 clearBtn.addEventListener("click", () => { state.query = ""; searchInput.value = ""; clearBtn.classList.remove("visible"); searchInput.focus(); render(); });
-filterBtn.addEventListener("click", () => filterOverlay.classList.add("open"));
-filterClose.addEventListener("click", () => filterOverlay.classList.remove("open"));
-filterOverlay.addEventListener("click", e => { if(e.target===filterOverlay) filterOverlay.classList.remove("open"); });
 
+// ============================================================
+// BLOCO: EVENTOS — MODAL DE FILTROS
+// ============================================================
+filterBtn.addEventListener("click", () => filterOverlay.classList.add("open"));     // clicar em "Filtrar" abre o modal (adiciona a classe "open")
+filterClose.addEventListener("click", () => filterOverlay.classList.remove("open")); // clicar no "X" do modal fecha-o
+filterOverlay.addEventListener("click", e => { if(e.target===filterOverlay) filterOverlay.classList.remove("open"); }); // clicar fora do "cartão" do modal (no fundo escurecido) também fecha — só se o clique foi directamente no overlay, não nos filhos
+
+// Sempre que o slider de avaliação é movido, actualiza o estado e o texto mostrado, e renderiza de novo.
 ratingSlider.addEventListener("input", () => {
-  state.minRating = parseFloat(ratingSlider.value);
-  ratingVal.textContent = state.minRating > 0 ? state.minRating.toFixed(1) + "+" : "Todas";
-  render();
+  state.minRating = parseFloat(ratingSlider.value);                          // lê o valor actual do slider como número decimal (ex.: 3.5)
+  ratingVal.textContent = state.minRating > 0 ? state.minRating.toFixed(1) + "+" : "Todas"; // mostra "X.X+" se houver um mínimo definido, ou "Todas" se for 0
+  render();                                                                    // recalcula e redesenha tudo
 });
+// Botão "Limpar Filtros": repõe o filtro de estado e o slider de avaliação para os valores por omissão.
 clearFiltersBtn.addEventListener("click", () => {
-  state.bakeryFilter = "Todas"; state.minRating = 0;
-  ratingSlider.value = 0; ratingVal.textContent = "Todas";
-  render();
+  state.bakeryFilter = "Todas"; state.minRating = 0;            // repõe o filtro de estado e a avaliação mínima
+  ratingSlider.value = 0; ratingVal.textContent = "Todas";       // sincroniza visualmente o slider e o texto de avaliação
+  render();                                                       // recalcula e redesenha tudo
 });
+// Botão "Aplicar": como o estado já é actualizado em tempo real pelo slider/chips, este botão só fecha o modal.
 applyFiltersBtn.addEventListener("click", () => filterOverlay.classList.remove("open"));
 
-window.setBakeryFilter = s => { state.bakeryFilter = s; render(); };
 
-render();
+window.setBakeryFilter = s => { state.bakeryFilter = s; render(); }; // muda o filtro de estado de padaria e redesenha
+
+
+// BLOCO: INICIALIZAÇÃO
+
+render(); // primeira renderização da página, assim que o script corre
 
 </script>
 </body>
