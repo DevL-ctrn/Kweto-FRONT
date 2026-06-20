@@ -834,11 +834,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 });
 
 
-// BLOCO: FUNÇÕES GLOBAIS PARA OS CHIPS
 
-// Expostas em "window" porque os chips são gerados como texto HTML (em
-// renderChips) e os respectivos atributos onclick só conseguem chamar
-// funções que existam no âmbito global.
 window.setProductFilter = cat => { state.productFilter = cat; render(); }; // muda o filtro de categoria de produto (afecta as DUAS abas) e redesenha
 window.setBakeryFilter  = s   => { state.bakeryFilter = s;   render(); };  // muda o filtro de estado de padaria e redesenha
 
