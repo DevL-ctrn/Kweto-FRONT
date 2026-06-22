@@ -613,7 +613,7 @@ function normalize(str) {
 // Usado nos produtos: "manteiga" bate com "Croissant de Manteiga".
 function matchesWordPrefix(text, q) {
   if (!q) return true;
-  return normalize(text).split(/\s+/).some(word => word.startsWith(q));
+  return normalize(text).split(/\s+/).some(word => word.includes(q));
 }
 
 // Verifica se cada palavra de q é início de alguma palavra do nome.
@@ -622,7 +622,7 @@ function matchesInitials(name, q) {
   if (!q) return true;
   const nameWords = normalize(name).split(/\s+/);
   const qWords    = q.split(/\s+/).filter(Boolean);
-  return qWords.every(qw => nameWords.some(word => word.startsWith(qw)));
+  return qWords.every(qw => nameWords.some(word => word.includes(qw)));
 }
 
 /* BLOCO: FILTRAGEM DE DADOS */
@@ -738,7 +738,7 @@ function renderBakeries(baks) {
   ).join("");
 }
 
-/* BLOCO: RENDER PRINCIPAL */
+/* BLOCO: RENDER PRINCIPAL (ORQUESTRADOR) */
 function render() {
   const prods        = filteredProducts();
   const baks         = filteredBakeries();
