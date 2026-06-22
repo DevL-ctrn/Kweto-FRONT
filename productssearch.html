@@ -601,7 +601,7 @@ const ratingSlider     = document.getElementById("ratingSlider");
 const ratingVal        = document.getElementById("ratingVal");
 
 /* BLOCO: FUNÇÃO DE NORMALIZAÇÃO DE TEXTO */
-// Põe em minúsculas e remove acentos para que por exemplo "pão" e "pao" (ou "Pão") sejam equivalentes.
+// Põe em minúsculas e remove acentos para que "pão" e "pao" (ou "Pão") sejam equivalentes.
 function normalize(str) {
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
@@ -611,7 +611,7 @@ function normalize(str) {
 // Ex.: query="manteiga" bate com "Croissant de Manteiga" porque "manteiga" é uma das palavras.
 function matchesWordPrefix(text, q) {
   if (!q) return true; // sem query, tudo bate
-  return normalize(text).split(/\s+/).some(word => word.startsWith(q));
+  return normalize(text).split(/\s+/).some(word => word.includes(q));
 }
 
 /* BLOCO: FILTRAGEM DE DADOS */
@@ -735,7 +735,7 @@ function renderBakeries(baks) {
   ).join("");
 }
 
-/* BLOCO: RENDER PRINCIPAL */
+/* BLOCO: RENDER PRINCIPAL (ORQUESTRADOR) */
 function render() {
   const prods        = filteredProducts();
   const baks         = filteredBakeries();
