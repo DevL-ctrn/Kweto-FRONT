@@ -374,6 +374,21 @@
   .btn-catalog:hover { opacity: .7; }
   .btn-catalog svg { width: 12px; height: 12px; }
 
+  /* ── Sugestões fuzzy ("Quis dizer") ── */
+  .did-you-mean {
+    margin-top: 14px;
+    display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; color: var(--muted-fg);
+  }
+  .suggestion-chip {
+    background: none; border: 1.5px solid #d4a017;
+    color: #92400e; font-weight: 700; font-size: 13px;
+    padding: 4px 14px; border-radius: 100px;
+    cursor: pointer; transition: background var(--transition);
+  }
+  .suggestion-chip:hover { background: #fdf8f0; }
+
   /* ── Animations ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
@@ -462,6 +477,7 @@
     <div class="empty" id="emptyProducts" style="display:none">
       <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
       Nenhum produto encontrado.
+      <div class="did-you-mean" id="dymProducts"></div>
     </div>
   </div>
 
@@ -471,6 +487,7 @@
     <div class="empty" id="emptyBakeries" style="display:none">
       <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
       Nenhuma padaria encontrada.
+      <div class="did-you-mean" id="dymBakeries"></div>
     </div>
   </div>
 
@@ -613,14 +630,16 @@ function normalize(str) {
 // Usado nos produtos: "manteiga" bate com "Croissant de Manteiga".
 function matchesWordPrefix(text, q) {
   if (!q) return true;
-  return normalize(text).split(/\s+/).some(word => word.includes(q));
+  const normalText = normalize(text);
+  if (normalText.includes(q)) return true; // coincidência total (usada quando se clica numa sugestão)
+  return normalText.split(/\s+/).some(word => word.includes(q));
 }
 
-// Verifica se cada palavra de q é início de alguma palavra do nome.
-// Usado nas padarias: "pa cr" bate com "Pastelaria Cristal".
 function matchesInitials(name, q) {
   if (!q) return true;
-  const nameWords = normalize(name).split(/\s+/);
+  const normalName = normalize(name);
+  if (normalName.includes(q)) return true; // coincidência total
+  const nameWords = normalName.split(/\s+/);
   const qWords    = q.split(/\s+/).filter(Boolean);
   return qWords.every(qw => nameWords.some(word => word.includes(qw)));
 }
@@ -662,7 +681,16 @@ function renderChips() {
 
 /* BLOCO: RENDERIZAÇÃO DOS PRODUTOS */
 function renderProducts(prods) {
-  if (!prods.length) { productGrid.style.display="none"; emptyProducts.style.display="block"; return; }
+  if (!prods.length) {
+    productGrid.style.display = "none";
+    emptyProducts.style.display = "block";
+    const suggs = getSuggestions(state.query, PRODUCTS.map(p => p.name));
+    const dym = document.getElementById('dymProducts');
+    dym.innerHTML = suggs.length && state.query.trim()
+      ? 'Quis dizer: ' + suggs.map(s => `<button class="suggestion-chip" onclick="applySuggestion('${s.replace(/'/g,"&#39;")}')">${s}</button>`).join('')
+      : '';
+    return;
+  }
   productGrid.style.display = "grid";
   emptyProducts.style.display = "none";
   productGrid.innerHTML = prods.map(p => `
@@ -697,7 +725,16 @@ function renderProducts(prods) {
 
 /* BLOCO: RENDERIZAÇÃO DAS PADARIAS */
 function renderBakeries(baks) {
-  if (!baks.length) { bakeryList.style.display="none"; emptyBakeries.style.display="block"; return; }
+  if (!baks.length) {
+    bakeryList.style.display = "none";
+    emptyBakeries.style.display = "block";
+    const suggs = getSuggestions(state.query, BAKERIES.map(b => b.name));
+    const dym = document.getElementById('dymBakeries');
+    dym.innerHTML = suggs.length && state.query.trim()
+      ? 'Quis dizer: ' + suggs.map(s => `<button class="suggestion-chip" onclick="applySuggestion('${s.replace(/'/g,"&#39;")}')">${s}</button>`).join('')
+      : '';
+    return;
+  }
   bakeryList.style.display = "flex";
   emptyBakeries.style.display = "none";
   bakeryList.innerHTML = baks.map(b => `
@@ -738,7 +775,7 @@ function renderBakeries(baks) {
   ).join("");
 }
 
-/* BLOCO: RENDER PRINCIPAL (ORQUESTRADOR) */
+/* BLOCO: RENDER PRINCIPAL */
 function render() {
   const prods        = filteredProducts();
   const baks         = filteredBakeries();
@@ -810,6 +847,60 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 /* BLOCO: FUNÇÕES GLOBAIS PARA OS CHIPS */
 window.setProductFilter = cat => { state.productFilter = cat; render(); };
 window.setBakeryFilter  = s   => { state.bakeryFilter  = s;   render(); };
+
+/* BLOCO: SUGESTÕES FUZZY ("Quis dizer: ...") */
+
+function collapseRepeats(str) { return str.replace(/(.)\1+/g, '$1'); }
+
+function phoneticNorm(str) {
+  return str.replace(/zh/g,'ch').replace(/sh/g,'ch').replace(/ck/g,'k').replace(/ph/g,'f').replace(/qu/g,'k');
+}
+
+function getTrigrams(str) {
+  const s = ' ' + str + ' ', tg = new Set();
+  for (let i = 0; i < s.length - 2; i++) tg.add(s.slice(i, i + 3));
+  return tg;
+}
+
+function trigramSim(a, b) {
+  const ta = getTrigrams(a), tb = getTrigrams(b);
+  let inter = 0;
+  for (const t of ta) if (tb.has(t)) inter++;
+  return (ta.size + tb.size) === 0 ? 0 : (2 * inter) / (ta.size + tb.size);
+}
+
+function prefixBonus(a, b) {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i >= 3 ? 0.25 : 0;
+}
+
+function prepFuzzy(str) { return phoneticNorm(collapseRepeats(normalize(str.trim()))); }
+
+function scoreName(query, name) {
+  const q = prepFuzzy(query);
+  return Math.max(...normalize(name).split(/\s+/).map(w => {
+    const wc = phoneticNorm(collapseRepeats(w));
+    return trigramSim(q, wc) + prefixBonus(q, wc);
+  }));
+}
+
+function getSuggestions(query, names) {
+  if (normalize(query.trim()).length < 2) return [];
+  return names
+    .map(name => ({ name, score: scoreName(query, name) }))
+    .filter(s => s.score > 0.2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(s => s.name);
+}
+
+window.applySuggestion = name => {
+  searchInput.value = name;
+  state.query = name;
+  clearBtn.classList.add('visible');
+  render();
+};
 
 /* BLOCO: INICIALIZAÇÃO */
 priceVal.textContent = "Sem limite";
