@@ -251,6 +251,21 @@
   }
   .btn-catalog:hover { opacity: .7; }
 
+  /* ── Sugestões fuzzy ("Quis dizer") ── */
+  .did-you-mean {
+    margin-top: 14px;
+    display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: center; gap: 8px;
+    font-size: 13px; color: var(--muted-fg);
+  }
+  .suggestion-chip {
+    background: none; border: 1.5px solid #d4a017;
+    color: #92400e; font-weight: 700; font-size: 13px;
+    padding: 4px 14px; border-radius: 100px;
+    cursor: pointer; transition: background var(--transition);
+  }
+  .suggestion-chip:hover { background: #fdf8f0; }
+
   /* ── Animations ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
@@ -319,6 +334,7 @@
     <div class="empty" id="emptyBakeries" style="display:none">
       <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
       Nenhuma padaria encontrada.
+      <div class="did-you-mean" id="dymBakeries"></div>
     </div>
   </div>
 
@@ -408,9 +424,11 @@ function normalize(str) {
 // Ex.: "aria" bate com "Pad**aria** Miramar"; "mar" bate com "Padaria Mira**mar**".
 function matchesInitials(name, q) {
   if (!q) return true;
-  const nameWords = normalize(name).split(/\s+/);   // palavras do nome da padaria
-  const qWords    = q.split(/\s+/).filter(Boolean);  // palavras pesquisadas
-  return qWords.every(qw => nameWords.some(word => word.includes(qw))); // cada palavra pesquisada tem de estar contida em pelo menos uma palavra do nome
+  const normalName = normalize(name);
+  if (normalName.includes(q)) return true; // coincidência total (usada quando se clica numa sugestão)
+  const nameWords = normalName.split(/\s+/);
+  const qWords    = q.split(/\s+/).filter(Boolean);
+  return qWords.every(qw => nameWords.some(word => word.includes(qw)));
 }
 
 /* BLOCO: FILTRAGEM DE DADOS */
@@ -435,7 +453,16 @@ function renderChips() {
 /* BLOCO: RENDERIZAÇÃO DAS PADARIAS */
 function renderBakeries() {
   const baks = filteredBakeries();
-  if (!baks.length) { bakeryList.style.display="none"; emptyBakeries.style.display="block"; return; }
+  if (!baks.length) {
+    bakeryList.style.display = "none";
+    emptyBakeries.style.display = "block";
+    const suggs = getSuggestions(state.query, BAKERIES.map(b => b.name));
+    const dym = document.getElementById('dymBakeries');
+    dym.innerHTML = suggs.length && state.query.trim()
+      ? 'Quis dizer: ' + suggs.map(s => `<button class="suggestion-chip" onclick="applySuggestion('${s.replace(/'/g, "&#39;")}')">${s}</button>`).join('')
+      : '';
+    return;
+  }
   bakeryList.style.display = "flex";
   emptyBakeries.style.display = "none";
   bakeryList.innerHTML = baks.map(b => `
@@ -517,6 +544,80 @@ applyFiltersBtn.addEventListener("click", () => filterOverlay.classList.remove("
 
 /* BLOCO: FUNÇÕES GLOBAIS PARA OS CHIPS */
 window.setBakeryFilter = s => { state.bakeryFilter = s; render(); };
+
+/* BLOCO: SUGESTÕES FUZZY ("Quis dizer: ...") */
+
+// Colapsa letras repetidas consecutivas: "ooo"→"o", "kk"→"k"
+function collapseRepeats(str) {
+  return str.replace(/(.)\1+/g, '$1');
+}
+
+// Normalização fonética leve: mapeamentos de sons semelhantes
+function phoneticNorm(str) {
+  return str
+    .replace(/zh/g, 'ch')   // zh ≈ ch  (ex: "Zhocolate" → "chocolate")
+    .replace(/sh/g, 'ch')   // sh ≈ ch
+    .replace(/ck/g, 'k')    // ck → k
+    .replace(/ph/g, 'f')    // ph → f
+    .replace(/qu/g, 'k');   // qu → k
+}
+
+// Gera o conjunto de trigramas de uma string (usado para medir similaridade)
+function getTrigrams(str) {
+  const s = ' ' + str + ' ';
+  const tg = new Set();
+  for (let i = 0; i < s.length - 2; i++) tg.add(s.slice(i, i + 3));
+  return tg;
+}
+
+// Coeficiente de Dice entre dois conjuntos de trigramas (0 = nada em comum, 1 = idênticos)
+function trigramSim(a, b) {
+  const ta = getTrigrams(a), tb = getTrigrams(b);
+  let inter = 0;
+  for (const t of ta) if (tb.has(t)) inter++;
+  return (ta.size + tb.size) === 0 ? 0 : (2 * inter) / (ta.size + tb.size);
+}
+
+// Bónus se os primeiros 3+ caracteres coincidirem (ex: "cho" em "choykkfjk" vs "chocolate")
+function prefixBonus(a, b) {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i >= 3 ? 0.25 : 0;
+}
+
+// Prepara o query para comparação fuzzy: normaliza, colapsa repetições, normaliza fonética
+function prepFuzzy(str) {
+  return phoneticNorm(collapseRepeats(normalize(str.trim())));
+}
+
+// Calcula o melhor score de similaridade entre o query e qualquer palavra do nome
+function scoreName(query, name) {
+  const q = prepFuzzy(query);
+  const scores = normalize(name).split(/\s+/).map(w => {
+    const wc = phoneticNorm(collapseRepeats(w));
+    return trigramSim(q, wc) + prefixBonus(q, wc);
+  });
+  return Math.max(...scores);
+}
+
+// Devolve até 4 sugestões ordenadas por score (só se query tiver ≥2 chars)
+function getSuggestions(query, names) {
+  if (normalize(query.trim()).length < 2) return [];
+  return names
+    .map(name => ({ name, score: scoreName(query, name) }))
+    .filter(s => s.score > 0.2)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map(s => s.name);
+}
+
+// Quando o utilizador clica numa sugestão, preenche a pesquisa com esse nome
+window.applySuggestion = name => {
+  searchInput.value = name;
+  state.query = name;
+  clearBtn.classList.add('visible');
+  render();
+};
 
 /* BLOCO: INICIALIZAÇÃO */
 render();
