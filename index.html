@@ -254,14 +254,29 @@
     .bakeries-box::before { top: 0; }
     .bakeries-box::after  { bottom: 0; }
 
-    .bakeries-scroll-list {
-      overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
-      max-height: 320px;
-      scrollbar-color: #92400e #f5ece3;
+    .bakeries-scroll-wrapper {
+      position: relative;
     }
-    .bakeries-scroll-list::-webkit-scrollbar { width: 12px; }
-    .bakeries-scroll-list::-webkit-scrollbar-track { background: #f5ece3; border-radius: 6px; }
-    .bakeries-scroll-list::-webkit-scrollbar-thumb { background: #92400e; border-radius: 6px; border: 2px solid #f5ece3; }
+    .bakeries-scroll-list {
+      overflow-y: scroll; display: flex; flex-direction: column; gap: 12px;
+      max-height: 320px; padding-right: 10px;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .bakeries-scroll-list::-webkit-scrollbar { display: none; }
+
+    /* ── Scrollbar custom (funciona em mobile e desktop) ── */
+    .custom-scrollbar {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 5px; background: #f5ece3; border-radius: 3px;
+      display: none;
+    }
+    .custom-scrollbar-thumb {
+      position: absolute; left: 0; right: 0;
+      background: #92400e; border-radius: 3px;
+      cursor: grab; min-height: 32px;
+      transition: background var(--t);
+    }
+    .custom-scrollbar-thumb:active { cursor: grabbing; background: #78350f; }
     .bakery-card {
       background: #ffffff; border: 1.5px solid #c8860a;
       border-radius: 20px; padding: 16px;
@@ -452,7 +467,12 @@
 
       <!-- Border a delimitar a lista de padarias -->
       <div class="bakeries-box">
-        <div class="bakeries-scroll-list" id="bakeriesList"></div>
+        <div class="bakeries-scroll-wrapper">
+          <div class="bakeries-scroll-list" id="bakeriesList"></div>
+          <div class="custom-scrollbar" id="customScrollbar">
+            <div class="custom-scrollbar-thumb" id="customScrollThumb"></div>
+          </div>
+        </div>
         <div id="emptyBakeries" style="display:none;text-align:center;padding:48px 0;color:var(--muted-fg)">
           <div style="font-size:48px;margin-bottom:12px"></div>
           <p>Nenhuma padaria encontrada. Tente ajustar os filtros.</p>
@@ -613,6 +633,7 @@
           </div>
         </div>
       `).join("");
+      setTimeout(updateThumb, 0); // após o DOM ser actualizado
     }
 
     document.getElementById("searchBox").addEventListener("click", function() {
@@ -646,6 +667,54 @@
     });
 
     setInterval(() => goTo((current + 1) % slides.length), 5000);
+
+    /* ── SCROLLBAR CUSTOM ── */
+    const scrollEl  = document.getElementById('bakeriesList');
+    const scrollbar = document.getElementById('customScrollbar');
+    const thumb     = document.getElementById('customScrollThumb');
+
+    function updateThumb() {
+      const ratio = scrollEl.clientHeight / scrollEl.scrollHeight;
+      if (ratio >= 1) { scrollbar.style.display = 'none'; return; }
+      scrollbar.style.display = 'block';
+      const thumbH = Math.max(ratio * scrollEl.clientHeight, 32);
+      const maxTop = scrollEl.clientHeight - thumbH;
+      const scrollRatio = scrollEl.scrollTop / (scrollEl.scrollHeight - scrollEl.clientHeight);
+      thumb.style.height = thumbH + 'px';
+      thumb.style.top    = (scrollRatio * maxTop) + 'px';
+    }
+
+    scrollEl.addEventListener('scroll', updateThumb);
+
+    // Drag — mouse
+    let dragging = false, dragStartY = 0, dragStartScroll = 0;
+    thumb.addEventListener('mousedown', e => {
+      dragging = true; dragStartY = e.clientY; dragStartScroll = scrollEl.scrollTop;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const thumbH   = thumb.offsetHeight;
+      const maxTop   = scrollEl.clientHeight - thumbH;
+      const delta    = e.clientY - dragStartY;
+      const scrollDelta = (delta / maxTop) * (scrollEl.scrollHeight - scrollEl.clientHeight);
+      scrollEl.scrollTop = dragStartScroll + scrollDelta;
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    // Drag — touch (mobile)
+    thumb.addEventListener('touchstart', e => {
+      dragging = true; dragStartY = e.touches[0].clientY; dragStartScroll = scrollEl.scrollTop;
+    }, { passive: true });
+    document.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const thumbH   = thumb.offsetHeight;
+      const maxTop   = scrollEl.clientHeight - thumbH;
+      const delta    = e.touches[0].clientY - dragStartY;
+      const scrollDelta = (delta / maxTop) * (scrollEl.scrollHeight - scrollEl.clientHeight);
+      scrollEl.scrollTop = dragStartScroll + scrollDelta;
+    }, { passive: true });
+    document.addEventListener('touchend', () => { dragging = false; });
 
     renderBakeries();
   </script>
